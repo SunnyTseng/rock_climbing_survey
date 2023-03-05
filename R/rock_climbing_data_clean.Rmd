@@ -1,0 +1,10 @@
+---
+title: "Rock climbing data claning & t-test"
+author: "Sunny Tseng"
+date: "2023-03-05"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
