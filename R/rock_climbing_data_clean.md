@@ -1,4 +1,4 @@
-Rock climbing survey data claning & t-test
+Rock climbing survey data claning & analysis
 ================
 Sunny Tseng
 2023-03-05
@@ -9,12 +9,10 @@ There are 3 cohorts experienced rock climbing intervention. Surveys were
 done before intervention, after intervention, and 1-year after
 intervention (only for cohort 1). This research is aim to understand how
 the intervention would influence the behaviour of the participants.
-Cohort 1 includes 12 people, cohort 2 include
-
-And there were 20 questions asked, with 4 different levels: Strongly
-Agree, Agree, Disagree, Strongly Disagree. The goal of the analysi is to
-test whether there are differences between those levels before and after
-the intervention.
+There were 20 questions asked, with 4 different levels: Strongly Agree,
+Agree, Disagree, Strongly Disagree. The goal of the analysis is to test
+whether there are significant differences between those levels before
+and after the intervention.
 
 ### R packages & other functions
 
@@ -25,13 +23,12 @@ functions for data wrangling and data cleaning, `here` packages provides
 functions for working directory management.
 
 ``` r
-#install.packages("tidyverse")
-#install.packages("here")
 library(tidyverse)
 library(readxl)
 library(here)
 library(knitr)
 library(RColorBrewer)
+library(coin)
 ```
 
 ## Cohort 1
@@ -212,7 +209,7 @@ Positive questions for climbing - before & after intervention
 nb.cols <- 20
 mycolors <- colorRampPalette(brewer.pal(8, "Set2"))(nb.cols)
 
-positive_c1 <- data_c1_clean %>%
+positive_c1_fig <- data_c1_clean %>%
   filter(cohort == "c1") %>%
   select(`Respondent ID`, survey, 5:8, 10:20) %>%
   pivot_longer(!c(`Respondent ID`, survey), 
@@ -227,10 +224,43 @@ positive_c1 <- data_c1_clean %>%
     facet_grid(~survey) +
     theme(legend.position = "none") 
 
-positive_c1
+positive_c1_fig
 ```
 
 ![](rock_climbing_data_clean_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+
+``` r
+positive_c1_table <- data_c1_clean %>%
+  filter(cohort == "c1") %>%
+  select(`Respondent ID`, survey, 5:8, 10:20) %>%
+  pivot_longer(!c(`Respondent ID`, survey), 
+               names_to = "question", 
+               values_to = "agreement") %>%
+  drop_na() %>%
+  group_by(agreement, survey) %>%
+  summarize(n = n()) %>%
+  pivot_wider(names_from = survey, values_from = n) %>%
+  mutate(percent_before = s1/sum(.$s1)*100,
+         percent_after = s2/sum(.$s2)*100) %>%
+  rename(n_before = "s1", n_after = "s2") %>%
+  select(agreement, n_before, percent_before, n_after, percent_after)
+```
+
+    ## `summarise()` has grouped output by 'agreement'. You can override using the
+    ## `.groups` argument.
+
+``` r
+positive_c1_table
+```
+
+    ## # A tibble: 4 x 5
+    ## # Groups:   agreement [4]
+    ##   agreement         n_before percent_before n_after percent_after
+    ##   <fct>                <int>          <dbl>   <int>         <dbl>
+    ## 1 Strongly Disagree       13           6.70       9          5.06
+    ## 2 Disagree                40          20.6       29         16.3 
+    ## 3 Agree                  105          54.1       73         41.0 
+    ## 4 Strongly Agree          36          18.6       67         37.6
 
 Negative questions for climbing - before & after intervention
 
@@ -251,18 +281,169 @@ negative_c1 <- data_c1_clean %>%
     geom_bar(aes(`Level of agreement`, fill = question)) + # position = position_dodge()
     scale_fill_manual(values = mycolors) +
     facet_grid(~survey) +
-    theme(legend.position = "bottom") 
+    theme(legend.position = "none") 
 
 negative_c1
 ```
 
-![](rock_climbing_data_clean_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+![](rock_climbing_data_clean_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
 
-Statistical test
+``` r
+negative_c1_table <- data_c1_clean %>%
+  filter(cohort == "c1") %>%
+  select(`Respondent ID`, survey, 9, 21:24) %>%
+  pivot_longer(!c(`Respondent ID`, survey), 
+               names_to = "question", 
+               values_to = "agreement") %>%
+  drop_na() %>%
+  group_by(agreement, survey) %>%
+  summarize(n = n()) %>%
+  pivot_wider(names_from = survey, values_from = n) %>%
+  mutate(percent_before = s1/sum(.$s1)*100,
+         percent_after = s2/sum(.$s2)*100) %>%
+  rename(n_before = "s1", n_after = "s2") %>%
+  select(agreement, n_before, percent_before, n_after, percent_after)
+```
+
+    ## `summarise()` has grouped output by 'agreement'. You can override using the
+    ## `.groups` argument.
+
+``` r
+negative_c1_table
+```
+
+    ## # A tibble: 4 x 5
+    ## # Groups:   agreement [4]
+    ##   agreement         n_before percent_before n_after percent_after
+    ##   <fct>                <int>          <dbl>   <int>         <dbl>
+    ## 1 Strongly Disagree        1           1.54       2          3.33
+    ## 2 Disagree                16          24.6       21         35   
+    ## 3 Agree                   30          46.2       16         26.7 
+    ## 4 Strongly Agree          18          27.7       21         35
+
+### Statistical test for paired ordinal data
+
+#### Some good online resources:
+
+-   [What types of statistical test can be used for paired categorical
+    variables](https://www.researchgate.net/post/What-types-of-statistical-test-can-be-used-for-paired-categorical-variables-For-more-than-two-category)
+
+-   [What is the most suitable statistical test for ordinal
+    data](https://www.researchgate.net/post/What_is_the_most_suitable_statistical_test_for_ordinal_data_eg_Likert_scales#:~:text=The%20most%20suitable%20statistical%20tests,%2C%20no%20assumption%20on%20distribution).)
+
+-   [Choosing the Right Statistical
+    Test](https://www.scribbr.com/statistics/statistical-tests/#:~:text=They%20can%20be%20used%20to%20test%20the%20effect%20of%20a,heights%20of%20men%20and%20women).)
+
+-   [Can You Use a T-Test on Ranked
+    Data?](https://sciencing.com/can-use-ttest-ranked-data-12010046.html)
+
+#### T-test
+
+> T-tests are not appropriate to use with ordinal data. Because ordinal
+> data has no central tendency, it also has no normal distribution. The
+> values of ordinal data are evenly distributed, not grouped around a
+> mid-point. Because of this, a t-test of ordinal data would have no
+> statistical meaning.
+
+![t_test](%22docs/types_of_analysis.PNG%22)
+
+#### Wilcoxon Signed Rank Test
+
+> The Wilcoxon signed rank test (also called the Wilcoxon signed rank
+> sum test) is a non-parametric test to compare data. The Wilcoxon
+> signed rank test should be used if the differences between pairs of
+> data are non-normally distributed. The Wilcoxon matched-pairs signed
+> rank test computes the difference between each set of matched pairs,
+> then follows the same procedure as the signed rank test to compare the
+> sample against some median. The null hypothesis for this test is that
+> the medians of two samples are equal.
+
+### Wilcoxon matched-pairs signed rank test for single question
+
+The following analysis is based on the instructions provided by [Ordinal
+vs Ordinal
+paired](https://peterstatistics.com/CrashCourse/4-TwoVarPair/OrdOrd/OrdOrdPair0.html).
+Here we demonstrate a single question, say the 5th column.
+
+First we summarize the response of the participants:
+
+``` r
+wilcox_1 <- data_c1_clean %>%
+  select(`Respondent ID`, 5, `survey`) %>%
+  mutate_at(c(2), ~recode(., "Strongly Agree" = 4,
+                             "Agree" = 3,
+                             "Disagree" = 2,
+                             "Strongly Disagree" = 1)) %>%
+  pivot_wider(names_from = survey, values_from = `I love to climb`) 
+
+wilcox_1
+```
+
+    ## # A tibble: 13 x 3
+    ##    `Respondent ID`    s1    s2
+    ##    <chr>           <dbl> <dbl>
+    ##  1 Participant 1       3     4
+    ##  2 Participant 2       3     2
+    ##  3 Participant 3       2     4
+    ##  4 Participant 4       3     3
+    ##  5 Participant 5       3     4
+    ##  6 Participant 6       2     4
+    ##  7 Participant 7       3     4
+    ##  8 Participant 8       3     3
+    ##  9 Participant 9       3     4
+    ## 10 Participant 10      4     3
+    ## 11 Participant 11      3     4
+    ## 12 Participant 12      3     4
+    ## 13 Participant 13      3    NA
+
+Then we plot out the bar plot of difference
+
+``` r
+wilcox_1_box <- wilcox_1 %>%
+  mutate(difference = s2 - s1) %>%
+  ggplot() +
+    geom_bar(aes(difference))
+
+wilcox_1_box
+```
+
+![](rock_climbing_data_clean_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+
+``` r
+wilcox.test(x = wilcox_1$s1, y = wilcox_1$s2,
+            paired = TRUE,
+            conf.int = TRUE,
+            conf.level = 0.95)
+```
+
+    ## 
+    ##  Wilcoxon signed rank test with continuity correction
+    ## 
+    ## data:  wilcox_1$s1 and wilcox_1$s2
+    ## V = 9, p-value = 0.05175
+    ## alternative hypothesis: true location shift is not equal to 0
+    ## 95 percent confidence interval:
+    ##  -1.500012e+00  3.290173e-05
+    ## sample estimates:
+    ## (pseudo)median 
+    ##     -0.9999941
+
+``` r
+wilcoxsign_test(wilcox_1$s1 ~ wilcox_1$s2, zero.method = "Wilcoxon")
+```
+
+    ## 
+    ##  Asymptotic Wilcoxon Signed-Rank Test
+    ## 
+    ## data:  y by x (pos, neg) 
+    ##   stratified by block
+    ## Z = -1.9993, p-value = 0.04558
+    ## alternative hypothesis: true mu is not equal to 0
 
 ### Questions for the dataset :)
 
--   Are the data of the 3 cohorts need to be pooled? Or each of them
-    need to be compared seperately?
+-   Are the data of the 3 cohorts need to be pooled? Or each of the
+    cohort need to be compared seperately?
 -   There are some NAs in the reply?
--   
+-   Pool the questions, or by group (positive & negative), or by single
+    question?

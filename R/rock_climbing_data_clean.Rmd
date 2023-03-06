@@ -1,5 +1,5 @@
 ---
-title: "Rock climbing survey data claning & t-test"
+title: "Rock climbing survey data claning & analysis"
 author: "Sunny Tseng"
 date: "2023-03-05"
 output: github_document
@@ -11,9 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ### Data description
 
-There are 3 cohorts experienced rock climbing intervention. Surveys were done before intervention, after intervention, and 1-year after intervention (only for cohort 1). This research is aim to understand how the intervention would influence the behaviour of the participants. Cohort 1 includes 12 people, cohort 2 include 
-
-And there were 20 questions asked, with 4 different levels: Strongly Agree, Agree, Disagree, Strongly Disagree. The goal of the analysi is to test whether there are differences between those levels before and after the intervention. 
+There are 3 cohorts experienced rock climbing intervention. Surveys were done before intervention, after intervention, and 1-year after intervention (only for cohort 1). This research is aim to understand how the intervention would influence the behaviour of the participants. There were 20 questions asked, with 4 different levels: Strongly Agree, Agree, Disagree, Strongly Disagree. The goal of the analysis is to test whether there are significant differences between those levels before and after the intervention. 
 
 
 ### R packages & other functions
@@ -21,13 +19,12 @@ And there were 20 questions asked, with 4 different levels: Strongly Agree, Agre
 Here we install (by `install.packages()`) and load (by `library()`) the packages that we will need. A package is like a tool box in R, that includes many functions. For example, `tidyverse` package provides functions for data wrangling and data cleaning, `here` packages provides functions for working directory management.  
 
 ```{r, message = FALSE}
-#install.packages("tidyverse")
-#install.packages("here")
 library(tidyverse)
 library(readxl)
 library(here)
 library(knitr)
 library(RColorBrewer)
+library(coin)
 ```
 
 
@@ -152,7 +149,7 @@ Positive questions for climbing - before & after intervention
 nb.cols <- 20
 mycolors <- colorRampPalette(brewer.pal(8, "Set2"))(nb.cols)
 
-positive_c1 <- data_c1_clean %>%
+positive_c1_fig <- data_c1_clean %>%
   filter(cohort == "c1") %>%
   select(`Respondent ID`, survey, 5:8, 10:20) %>%
   pivot_longer(!c(`Respondent ID`, survey), 
@@ -167,8 +164,27 @@ positive_c1 <- data_c1_clean %>%
     facet_grid(~survey) +
     theme(legend.position = "none") 
 
-positive_c1
+positive_c1_fig
 
+```
+
+```{r}
+positive_c1_table <- data_c1_clean %>%
+  filter(cohort == "c1") %>%
+  select(`Respondent ID`, survey, 5:8, 10:20) %>%
+  pivot_longer(!c(`Respondent ID`, survey), 
+               names_to = "question", 
+               values_to = "agreement") %>%
+  drop_na() %>%
+  group_by(agreement, survey) %>%
+  summarize(n = n()) %>%
+  pivot_wider(names_from = survey, values_from = n) %>%
+  mutate(percent_before = s1/sum(.$s1)*100,
+         percent_after = s2/sum(.$s2)*100) %>%
+  rename(n_before = "s1", n_after = "s2") %>%
+  select(agreement, n_before, percent_before, n_after, percent_after)
+
+positive_c1_table
 ```
 
 
@@ -191,25 +207,99 @@ negative_c1 <- data_c1_clean %>%
     geom_bar(aes(`Level of agreement`, fill = question)) + # position = position_dodge()
     scale_fill_manual(values = mycolors) +
     facet_grid(~survey) +
-    theme(legend.position = "bottom") 
+    theme(legend.position = "none") 
 
 negative_c1
 ```
 
+```{r}
+negative_c1_table <- data_c1_clean %>%
+  filter(cohort == "c1") %>%
+  select(`Respondent ID`, survey, 9, 21:24) %>%
+  pivot_longer(!c(`Respondent ID`, survey), 
+               names_to = "question", 
+               values_to = "agreement") %>%
+  drop_na() %>%
+  group_by(agreement, survey) %>%
+  summarize(n = n()) %>%
+  pivot_wider(names_from = survey, values_from = n) %>%
+  mutate(percent_before = s1/sum(.$s1)*100,
+         percent_after = s2/sum(.$s2)*100) %>%
+  rename(n_before = "s1", n_after = "s2") %>%
+  select(agreement, n_before, percent_before, n_after, percent_after)
+
+negative_c1_table
+```
+
+### Statistical test for paired ordinal data
+
+#### Some good online resources:
+
+- [What types of statistical test can be used for paired categorical variables](https://www.researchgate.net/post/What-types-of-statistical-test-can-be-used-for-paired-categorical-variables-For-more-than-two-category)
+
+- [What is the most suitable statistical test for ordinal data](https://www.researchgate.net/post/What_is_the_most_suitable_statistical_test_for_ordinal_data_eg_Likert_scales#:~:text=The%20most%20suitable%20statistical%20tests,%2C%20no%20assumption%20on%20distribution).)
+
+- [Choosing the Right Statistical Test](https://www.scribbr.com/statistics/statistical-tests/#:~:text=They%20can%20be%20used%20to%20test%20the%20effect%20of%20a,heights%20of%20men%20and%20women).)
+
+- [Can You Use a T-Test on Ranked Data?](https://sciencing.com/can-use-ttest-ranked-data-12010046.html)
+
+#### T-test
+
+>T-tests are not appropriate to use with ordinal data. Because ordinal data has no central tendency, it also has no normal distribution. The values of ordinal data are evenly distributed, not grouped around a mid-point. Because of this, a t-test of ordinal data would have no statistical meaning.
+
+
+#### Wilcoxon Signed Rank Test
+
+>The Wilcoxon signed rank test (also called the Wilcoxon signed rank sum test) is a non-parametric test to compare data. The Wilcoxon signed rank test should be used if the differences between pairs of data are non-normally distributed. The Wilcoxon matched-pairs signed rank test computes the difference between each set of matched pairs, then follows the same procedure as the signed rank test to compare the sample against some median. The null hypothesis for this test is that the medians of two samples are equal.
 
 
 
-Statistical test
+### Wilcoxon matched-pairs signed rank test for single question
+
+The following analysis is based on the instructions provided by [Ordinal vs Ordinal paired](https://peterstatistics.com/CrashCourse/4-TwoVarPair/OrdOrd/OrdOrdPair0.html). Here we demonstrate a single question, say the 5th column. 
+
+First we summarize the response of the participants:
+```{r}
+wilcox_1 <- data_c1_clean %>%
+  select(`Respondent ID`, 5, `survey`) %>%
+  mutate_at(c(2), ~recode(., "Strongly Agree" = 4,
+                             "Agree" = 3,
+                             "Disagree" = 2,
+                             "Strongly Disagree" = 1)) %>%
+  pivot_wider(names_from = survey, values_from = `I love to climb`) 
+
+wilcox_1
+```
 
 
+Then we plot out the bar plot of difference
+```{r, warning = FALSE}
+wilcox_1_box <- wilcox_1 %>%
+  mutate(difference = s2 - s1) %>%
+  ggplot() +
+    geom_bar(aes(difference))
 
-### Questions for the dataset :) 
-- Are the data of the 3 cohorts need to be pooled? Or each of them need to be compared seperately? 
+wilcox_1_box
+```
+
+
+```{r, warning = FALSE}
+wilcox.test(x = wilcox_1$s1, y = wilcox_1$s2,
+            paired = TRUE,
+            conf.int = TRUE,
+            conf.level = 0.95)
+```
+
+
+```{r}
+wilcoxsign_test(wilcox_1$s1 ~ wilcox_1$s2, zero.method = "Wilcoxon")
+```
+
+### Questions for the dataset :)
+
+- Are the data of the 3 cohorts need to be pooled? Or each of the cohort need to be compared seperately? 
 - There are some NAs in the reply? 
-- 
-
-
-
+- Pool the questions, or by group (positive & negative), or by single question?
 
 
 
