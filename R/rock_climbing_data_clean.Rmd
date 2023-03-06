@@ -20,6 +20,8 @@ library(readxl)
 ```
 
 
+## Cohort 1
+
 ### Import data
 ```{r}
 data_c1_s1 <- read_excel(here("data", 
@@ -36,10 +38,39 @@ data_c1_s3 <- read_excel(here("data",
 
 ```
 
-```{r}
-VIMFF_Cohort_1_Survey_1_pre_intervention_ <- read_excel("data/Cohort 1 Surveys 1, 2, 3, spreadsheets/VIMFF Cohort 1 Survey 1 (pre-intervention).xlsx")
-```
 
 ### Data cleaning
+```{r}
+new_name <- function(dataset, start, end){
+  dataset[1, start:end] %>% as_vector()
+}
+
+data_c1_s1_clean <- data_c1_s1 %>%
+  rename_with(.fn =~ new_name(data_c1_s1, 65, 84), .cols = c(65:84)) %>%
+  unite(gender, names(.)[11:23], sep = ",", na.rm = TRUE) %>%
+  unite(nationality, names(.)[12:28], sep = ",", na.rm = TRUE) %>%
+  unite(indoor_style_practice, names(.)[24:26], sep = ",", na.rm = TRUE) %>%
+  unite(outdoor_style_practice, names(.)[29:34], sep = ",", na.rm = TRUE) %>%
+  mutate()
+  
+  filter(row_number() != 1) %>%
+  select("Respondent ID", "gender", "nationality", 13:15, 30:49) 
+  
+
+
+
+
+```
+
 
 ### t-test
+
+
+
+
+
+
+
+
+
+
