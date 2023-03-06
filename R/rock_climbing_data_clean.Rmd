@@ -27,6 +27,7 @@ library(tidyverse)
 library(readxl)
 library(here)
 library(knitr)
+library(RColorBrewer)
 ```
 
 
@@ -122,7 +123,15 @@ data_c1_clean <- rbind(data_c1_s1_clean_1, data_c1_s2_clean) %>%
                              "Strongly Disagree" = 1,
                              "Strongly disagree" = 1),
             na.rm = TRUE) %>%
-    mutate_at(c(5:24), ~as_factor(.)) 
+    mutate_at(c(5:24), ~recode(., "4" = "Strongly Agree",
+                               "3" = "Agree",
+                               "2" = "Disagree",
+                               "1" = "Strongly Disagree")) %>%
+    mutate_at(c(5:24), ~ factor(., levels = c("Strongly Disagree",
+                                              "Disagree",
+                                              "Agree",
+                                              "Strongly Agree"))) 
+
 
 data_c1_clean %>% str()
 ```
@@ -131,15 +140,73 @@ data_c1_clean %>% str()
 data_c1_clean_individual <- data_c1_s1_clean %>%
   select("Respondent ID", "gender", "nationality", 13:18)
 
-data_c1_clean_individual %>% kable()
+data_c1_clean_individual 
 ```
 
 
 ### Data visualization
 
+Positive questions for climbing - before & after intervention
+
+```{r}
+nb.cols <- 20
+mycolors <- colorRampPalette(brewer.pal(8, "Set2"))(nb.cols)
+
+positive_c1 <- data_c1_clean %>%
+  filter(cohort == "c1") %>%
+  select(`Respondent ID`, survey, 5:8, 10:20) %>%
+  pivot_longer(!c(`Respondent ID`, survey), 
+               names_to = "question", 
+               values_to = "Level of agreement") %>%
+  mutate(survey = if_else(survey == "s1", "Before intervention", "After intervention")) %>%
+  mutate(survey = factor(survey, levels = c("Before intervention", "After intervention"))) %>%
+  drop_na() %>%
+  ggplot() +
+    geom_bar(aes(`Level of agreement`, fill = question)) + # position = position_dodge()
+    scale_fill_manual(values = mycolors) +
+    facet_grid(~survey) +
+    theme(legend.position = "none") 
+
+positive_c1
+
+```
 
 
-### t-test
+Negative questions for climbing - before & after intervention
+
+```{r}
+nb.cols <- 20
+mycolors <- colorRampPalette(brewer.pal(8, "Set2"))(nb.cols)
+
+negative_c1 <- data_c1_clean %>%
+  filter(cohort == "c1") %>%
+  select(`Respondent ID`, survey, 9, 21:24) %>%
+  pivot_longer(!c(`Respondent ID`, survey), 
+               names_to = "question", 
+               values_to = "Level of agreement") %>%
+  mutate(survey = if_else(survey == "s1", "Before intervention", "After intervention")) %>%
+  mutate(survey = factor(survey, levels = c("Before intervention", "After intervention"))) %>%
+  drop_na() %>%
+  ggplot() +
+    geom_bar(aes(`Level of agreement`, fill = question)) + # position = position_dodge()
+    scale_fill_manual(values = mycolors) +
+    facet_grid(~survey) +
+    theme(legend.position = "bottom") 
+
+negative_c1
+```
+
+
+
+
+Statistical test
+
+
+
+### Questions for the dataset :) 
+- Are the data of the 3 cohorts need to be pooled? Or each of them need to be compared seperately? 
+- There are some NAs in the reply? 
+- 
 
 
 

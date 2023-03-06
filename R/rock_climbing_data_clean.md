@@ -31,6 +31,7 @@ library(tidyverse)
 library(readxl)
 library(here)
 library(knitr)
+library(RColorBrewer)
 ```
 
 ## Cohort 1
@@ -134,7 +135,15 @@ data_c1_clean <- rbind(data_c1_s1_clean_1, data_c1_s2_clean) %>%
                              "Strongly Disagree" = 1,
                              "Strongly disagree" = 1),
             na.rm = TRUE) %>%
-    mutate_at(c(5:24), ~as_factor(.)) 
+    mutate_at(c(5:24), ~recode(., "4" = "Strongly Agree",
+                               "3" = "Agree",
+                               "2" = "Disagree",
+                               "1" = "Strongly Disagree")) %>%
+    mutate_at(c(5:24), ~ factor(., levels = c("Strongly Disagree",
+                                              "Disagree",
+                                              "Agree",
+                                              "Strongly Agree"))) 
+
 
 data_c1_clean %>% str()
 ```
@@ -144,26 +153,26 @@ data_c1_clean %>% str()
     ##  $ Collector ID                                                                                       : num [1:25] 2.7e+08 2.7e+08 2.7e+08 2.7e+08 2.7e+08 ...
     ##  $ indoor_style_practice                                                                              : chr [1:25] "Bouldering" "Bouldering" "Bouldering" "Bouldering" ...
     ##  $ outdoor_style_practice                                                                             : chr [1:25] "Bouldering" "" "" "" ...
-    ##  $ I love to climb                                                                                    : Factor w/ 3 levels "2","3","4": 2 2 1 2 2 1 2 2 2 3 ...
-    ##  $ Climbing is fun                                                                                    : Factor w/ 3 levels "2","3","4": 2 2 2 2 3 1 2 2 2 3 ...
-    ##  $ I am motivated to climb                                                                            : Factor w/ 3 levels "2","3","4": 2 2 2 2 2 2 1 2 1 3 ...
-    ##  $ I feel encouraged in my climbing                                                                   : Factor w/ 3 levels "2","3","4": 2 2 1 2 3 1 2 2 2 3 ...
-    ##  $ I feel hindered in my climbing                                                                     : Factor w/ 4 levels "1","2","3","4": 1 2 3 2 2 4 2 3 2 3 ...
-    ##  $ I am inspired to climb by my female-identified climbing friends                                    : Factor w/ 2 levels "3","4": 2 1 2 2 2 1 1 1 2 2 ...
-    ##  $ I am inspired to climb by films showcasing outdoor women climbers                                  : Factor w/ 3 levels "2","3","4": 2 2 2 3 3 1 3 1 3 2 ...
-    ##  $ I am inspired to spend more time outdoors after watching films that showcase outdoor women climbers: Factor w/ 3 levels "2","3","4": 2 2 2 3 3 2 3 1 3 2 ...
-    ##  $ I feel represented within the climbing community                                                   : Factor w/ 4 levels "1","2","3","4": 3 3 2 1 3 1 3 2 2 3 ...
-    ##  $ I feel outdoor climbing guides are representative of the larger Vancouver and Squamish area        : Factor w/ 4 levels "1","2","3","4": 3 2 NA 1 3 2 3 2 3 3 ...
-    ##  $ I feel welcomed in the climbing community                                                          : Factor w/ 3 levels "2","3","4": 2 2 2 2 3 1 2 2 2 3 ...
-    ##  $ I feel safe in the climbing community                                                              : Factor w/ 3 levels "2","3","4": 2 2 1 2 3 1 2 1 2 3 ...
-    ##  $ I feel connected to the climbing community                                                         : Factor w/ 4 levels "1","2","3","4": 3 3 2 2 3 2 3 2 2 4 ...
-    ##  $ I feel the climbing community reflects the diversity of Vancouver and Squamish areas               : Factor w/ 3 levels "1","2","3": 3 3 2 1 3 1 3 2 2 1 ...
-    ##  $ I feel it is possible for anyone to progress in climbing                                           : Factor w/ 4 levels "1","2","3","4": 3 3 2 1 4 2 3 4 3 3 ...
-    ##  $ I find indoor climbing more accessible than outdoor climbing                                       : Factor w/ 3 levels "1","3","4": 2 2 3 1 2 2 3 2 3 2 ...
-    ##  $ I find it difficult to find the resources to go outdoor climbing                                   : Factor w/ 2 levels "3","4": 1 1 1 2 1 2 2 1 2 2 ...
-    ##  $ I find it difficult to find the time to go outdoor climbing                                        : Factor w/ 3 levels "2","3","4": 2 1 1 1 3 3 2 2 2 2 ...
-    ##  $ I find it difficult to find transportation to outdoor climbing                                     : Factor w/ 4 levels "1","2","3","4": 3 2 4 4 2 4 2 3 2 4 ...
-    ##  $ I find it difficult to find friends to go outdoor climbing with                                    : Factor w/ 3 levels "2","3","4": 2 2 2 3 2 3 3 2 3 2 ...
+    ##  $ I love to climb                                                                                    : Factor w/ 4 levels "Strongly Disagree",..: 3 3 2 3 3 2 3 3 3 4 ...
+    ##  $ Climbing is fun                                                                                    : Factor w/ 4 levels "Strongly Disagree",..: 3 3 3 3 4 2 3 3 3 4 ...
+    ##  $ I am motivated to climb                                                                            : Factor w/ 4 levels "Strongly Disagree",..: 3 3 3 3 3 3 2 3 2 4 ...
+    ##  $ I feel encouraged in my climbing                                                                   : Factor w/ 4 levels "Strongly Disagree",..: 3 3 2 3 4 2 3 3 3 4 ...
+    ##  $ I feel hindered in my climbing                                                                     : Factor w/ 4 levels "Strongly Disagree",..: 1 2 3 2 2 4 2 3 2 3 ...
+    ##  $ I am inspired to climb by my female-identified climbing friends                                    : Factor w/ 4 levels "Strongly Disagree",..: 4 3 4 4 4 3 3 3 4 4 ...
+    ##  $ I am inspired to climb by films showcasing outdoor women climbers                                  : Factor w/ 4 levels "Strongly Disagree",..: 3 3 3 4 4 2 4 2 4 3 ...
+    ##  $ I am inspired to spend more time outdoors after watching films that showcase outdoor women climbers: Factor w/ 4 levels "Strongly Disagree",..: 3 3 3 4 4 3 4 2 4 3 ...
+    ##  $ I feel represented within the climbing community                                                   : Factor w/ 4 levels "Strongly Disagree",..: 3 3 2 1 3 1 3 2 2 3 ...
+    ##  $ I feel outdoor climbing guides are representative of the larger Vancouver and Squamish area        : Factor w/ 4 levels "Strongly Disagree",..: 3 2 NA 1 3 2 3 2 3 3 ...
+    ##  $ I feel welcomed in the climbing community                                                          : Factor w/ 4 levels "Strongly Disagree",..: 3 3 3 3 4 2 3 3 3 4 ...
+    ##  $ I feel safe in the climbing community                                                              : Factor w/ 4 levels "Strongly Disagree",..: 3 3 2 3 4 2 3 2 3 4 ...
+    ##  $ I feel connected to the climbing community                                                         : Factor w/ 4 levels "Strongly Disagree",..: 3 3 2 2 3 2 3 2 2 4 ...
+    ##  $ I feel the climbing community reflects the diversity of Vancouver and Squamish areas               : Factor w/ 4 levels "Strongly Disagree",..: 3 3 2 1 3 1 3 2 2 1 ...
+    ##  $ I feel it is possible for anyone to progress in climbing                                           : Factor w/ 4 levels "Strongly Disagree",..: 3 3 2 1 4 2 3 4 3 3 ...
+    ##  $ I find indoor climbing more accessible than outdoor climbing                                       : Factor w/ 4 levels "Strongly Disagree",..: 3 3 4 1 3 3 4 3 4 3 ...
+    ##  $ I find it difficult to find the resources to go outdoor climbing                                   : Factor w/ 4 levels "Strongly Disagree",..: 3 3 3 4 3 4 4 3 4 4 ...
+    ##  $ I find it difficult to find the time to go outdoor climbing                                        : Factor w/ 4 levels "Strongly Disagree",..: 3 2 2 2 4 4 3 3 3 3 ...
+    ##  $ I find it difficult to find transportation to outdoor climbing                                     : Factor w/ 4 levels "Strongly Disagree",..: 3 2 4 4 2 4 2 3 2 4 ...
+    ##  $ I find it difficult to find friends to go outdoor climbing with                                    : Factor w/ 4 levels "Strongly Disagree",..: 3 3 3 4 3 4 4 3 4 3 ...
     ##  $ cohort                                                                                             : chr [1:25] "c1" "c1" "c1" "c1" ...
     ##  $ survey                                                                                             : chr [1:25] "s1" "s1" "s1" "s1" ...
 
@@ -171,25 +180,89 @@ data_c1_clean %>% str()
 data_c1_clean_individual <- data_c1_s1_clean %>%
   select("Respondent ID", "gender", "nationality", 13:18)
 
-data_c1_clean_individual %>% kable()
+data_c1_clean_individual 
 ```
 
-| Respondent ID  | gender     | nationality                                                                | What is your annual household income? | What is the highest level of education you have completed? | What is your age? | What is your employment?     | Is there any other identifying information that you would like to provide? | How do you consider yourself as a climber in terms of skills/expertise? |
-|:---------------|:-----------|:---------------------------------------------------------------------------|:--------------------------------------|:-----------------------------------------------------------|:------------------|:-----------------------------|:---------------------------------------------------------------------------|:------------------------------------------------------------------------|
-| Participant 1  | Girl/Woman | Black (e.g., African or Caribbean)                                         | $25,000 to $50,000                    | Bachelor’s degree                                          | 24                | Employment Counsellor        | NA                                                                         | Beginner                                                                |
-| Participant 2  | Girl/Woman | Filipino                                                                   | $50,000 to $100,000                   | Master’s degree                                            | 50                | Bank                         | Single mom                                                                 | Beginner                                                                |
-| Participant 3  | Girl/Woman | South Asian (e.g., Indian, Pakistani, Sri Lankan)                          | Prefer not to answer                  | Bachelor’s degree                                          | 30                | Legal Counsel                | NA                                                                         | Beginner                                                                |
-| Participant 4  | Girl/Woman | Black (e.g., African or Caribbean),Arab                                    | $50,000 to $100,000                   | Master’s degree                                            | 34                | Healthcare worker.           | I wear a hijab.                                                            | Beginner                                                                |
-| Participant 5  | Girl/Woman | Southeast Asian (e.g., Vietnamese, Cambodian, Malaysian, Laotian),Canadian | $100,000 to $200,000                  | College diploma (two year)                                 | 32                | Paralegal                    | Mother & Wife                                                              | Beginner                                                                |
-| Participant 6  | Girl/Woman | West Asian (e.g., Iranian, Afghan),Mixed                                   | $50,000 to $100,000                   | Master’s degree                                            | 30                | Academia                     | Disabled                                                                   | Beginner                                                                |
-| Participant 7  | Girl/Woman | Chinese                                                                    | $50,000 to $100,000                   | High school                                                | 20                | Programming Instructor       | n/a                                                                        | Beginner                                                                |
-| Participant 8  | Girl/Woman | South Asian (e.g., Indian, Pakistani, Sri Lankan)                          | $50,000 to $100,000                   | Bachelor’s degree                                          | 45                | self-employed/student        | no                                                                         | Never climbed (before VIMFF)                                            |
-| Participant 9  | Girl/Woman | Chinese                                                                    | $50,000 to $100,000                   | Bachelor’s degree                                          | 24                | Project manager              | N/a                                                                        | Beginner                                                                |
-| Participant 10 | Girl/Woman | White (European descent)                                                   | $50,000 to $100,000                   | Master’s degree                                            | 28                | Biologist                    | NA                                                                         | Beginner                                                                |
-| Participant 11 | Girl/Woman | White (European descent)                                                   | $50,000 to $100,000                   | High school                                                | 33                | Animal Control/Bylaw Manager | In Recovery - 11 years sober                                               | Beginner                                                                |
-| Participant 12 | Girl/Woman | South Asian (e.g., Indian, Pakistani, Sri Lankan)                          | Prefer not to answer                  | Bachelor’s degree                                          | 26                | Teacher                      | NA                                                                         | Beginner                                                                |
-| Participant 13 | Girl/Woman | South Asian (e.g., Indian, Pakistani, Sri Lankan)                          | $50,000 to $100,000                   | Bachelor’s degree                                          | 45                | Self employed                | No                                                                         | Never climbed (before VIMFF)                                            |
+    ## # A tibble: 13 x 9
+    ##    `Respondent ID` gender     nationality      `What is your ~` `What is the h~`
+    ##    <chr>           <chr>      <chr>            <chr>            <chr>           
+    ##  1 Participant 1   Girl/Woman Black (e.g., Af~ $25,000 to $50,~ Bachelor's degr~
+    ##  2 Participant 2   Girl/Woman Filipino         $50,000 to $100~ Master's degree 
+    ##  3 Participant 3   Girl/Woman South Asian (e.~ Prefer not to a~ Bachelor's degr~
+    ##  4 Participant 4   Girl/Woman Black (e.g., Af~ $50,000 to $100~ Master's degree 
+    ##  5 Participant 5   Girl/Woman Southeast Asian~ $100,000 to $20~ College diploma~
+    ##  6 Participant 6   Girl/Woman West Asian (e.g~ $50,000 to $100~ Master's degree 
+    ##  7 Participant 7   Girl/Woman Chinese          $50,000 to $100~ High school     
+    ##  8 Participant 8   Girl/Woman South Asian (e.~ $50,000 to $100~ Bachelor's degr~
+    ##  9 Participant 9   Girl/Woman Chinese          $50,000 to $100~ Bachelor's degr~
+    ## 10 Participant 10  Girl/Woman White (European~ $50,000 to $100~ Master's degree 
+    ## 11 Participant 11  Girl/Woman White (European~ $50,000 to $100~ High school     
+    ## 12 Participant 12  Girl/Woman South Asian (e.~ Prefer not to a~ Bachelor's degr~
+    ## 13 Participant 13  Girl/Woman South Asian (e.~ $50,000 to $100~ Bachelor's degr~
+    ## # ... with 4 more variables: `What is your age?` <chr>,
+    ## #   `What is your employment?` <chr>,
+    ## #   `Is there any other identifying information that you would like to provide?` <chr>,
+    ## #   `How do you consider yourself as a climber in terms of skills/expertise?` <chr>
 
 ### Data visualization
 
-### t-test
+Positive questions for climbing - before & after intervention
+
+``` r
+nb.cols <- 20
+mycolors <- colorRampPalette(brewer.pal(8, "Set2"))(nb.cols)
+
+positive_c1 <- data_c1_clean %>%
+  filter(cohort == "c1") %>%
+  select(`Respondent ID`, survey, 5:8, 10:20) %>%
+  pivot_longer(!c(`Respondent ID`, survey), 
+               names_to = "question", 
+               values_to = "Level of agreement") %>%
+  mutate(survey = if_else(survey == "s1", "Before intervention", "After intervention")) %>%
+  mutate(survey = factor(survey, levels = c("Before intervention", "After intervention"))) %>%
+  drop_na() %>%
+  ggplot() +
+    geom_bar(aes(`Level of agreement`, fill = question)) + # position = position_dodge()
+    scale_fill_manual(values = mycolors) +
+    facet_grid(~survey) +
+    theme(legend.position = "none") 
+
+positive_c1
+```
+
+![](rock_climbing_data_clean_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+
+Negative questions for climbing - before & after intervention
+
+``` r
+nb.cols <- 20
+mycolors <- colorRampPalette(brewer.pal(8, "Set2"))(nb.cols)
+
+negative_c1 <- data_c1_clean %>%
+  filter(cohort == "c1") %>%
+  select(`Respondent ID`, survey, 9, 21:24) %>%
+  pivot_longer(!c(`Respondent ID`, survey), 
+               names_to = "question", 
+               values_to = "Level of agreement") %>%
+  mutate(survey = if_else(survey == "s1", "Before intervention", "After intervention")) %>%
+  mutate(survey = factor(survey, levels = c("Before intervention", "After intervention"))) %>%
+  drop_na() %>%
+  ggplot() +
+    geom_bar(aes(`Level of agreement`, fill = question)) + # position = position_dodge()
+    scale_fill_manual(values = mycolors) +
+    facet_grid(~survey) +
+    theme(legend.position = "bottom") 
+
+negative_c1
+```
+
+![](rock_climbing_data_clean_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+
+Statistical test
+
+### Questions for the dataset :)
+
+-   Are the data of the 3 cohorts need to be pooled? Or each of them
+    need to be compared seperately?
+-   There are some NAs in the reply?
+-   
