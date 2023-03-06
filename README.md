@@ -1,5 +1,5 @@
 # rock_climbing_survey
-Data analysis for Jenn's project in UNBC. The main analysis code is located at `R/rock_climbing_data_clean.Rmd`. 
+Data analysis for Jenn's project in UNBC. The main analysis code is located in this [R markdown analysi file](https://github.com/SunnyTseng/rock_climbing_survey/blob/main/R/rock_climbing_data_clean.md). 
 
 ## Preparation
 - Download [R](https://cran.r-project.org/bin/windows/base/) & [R studio](https://support--rstudio-com.netlify.app/products/rstudio/download/)
