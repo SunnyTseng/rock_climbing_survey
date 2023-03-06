@@ -22,7 +22,6 @@ Here we install (by `install.packages()`) and load (by `library()`) the packages
 library(tidyverse)
 library(readxl)
 library(here)
-library(knitr)
 library(RColorBrewer)
 library(coin)
 ```
