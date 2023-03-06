@@ -4,7 +4,7 @@ Data analysis for Jenn's project in UNBC. The main analysis code is located in t
 ## Preparation
 - Download [R](https://cran.r-project.org/bin/windows/base/) & [R studio](https://support--rstudio-com.netlify.app/products/rstudio/download/)
 
-- Clong, or download, this Github repository to your local computer
+- Clone, or download, this Github repository to your local computer
 
 ![image](docs/github_clone.PNG)
 
