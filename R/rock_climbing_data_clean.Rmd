@@ -69,21 +69,13 @@ data_c1_s1_clean <- data_c1_s1 %>%
   unite(nationality, names(.)[12:28], sep = ",", na.rm = TRUE) %>%
   unite(indoor_style_practice, names(.)[24:26], sep = ",", na.rm = TRUE) %>%
   unite(outdoor_style_practice, names(.)[29:34], sep = ",", na.rm = TRUE) %>%
-  mutate_at(c(30:49), ~recode(., "Strongly Agree" = 4,
-                             "Strongly agree" = 4,
-                             "Agree" = 3,
-                             "Disagree" = 2,
-                             "Strongly Disagree" = 1,
-                             "Strongly disagree" = 1),
-            na.rm = TRUE) %>%
-  mutate_at(c(30:49), ~as_factor(.)) %>%
-  mutate(cohort = "c1", survey = "s1") %>%
+  mutate(cohort = "c1", survey = "s1") 
+
+data_c1_s1_clean_1 <- data_c1_s1_clean %>%
   select("Respondent ID", "Collector ID", "indoor_style_practice",
          "outdoor_style_practice", 30:49, "cohort", "survey") 
 
-data_c1_s1_clean %>% str()
-
-
+#data_c1_s1_clean %>% str()
 ```
 
 For cohort 1, survey 2:
@@ -93,19 +85,11 @@ data_c1_s2_clean <- data_c1_s2 %>%
   filter(row_number() != 1) %>%
   unite(indoor_style_practice, names(.)[19:21], sep = ",", na.rm = TRUE) %>%
   unite(outdoor_style_practice, names(.)[24:29], sep = ",", na.rm = TRUE) %>%
-  mutate_at(c(25:44), ~recode(., "Strongly Agree" = 4,
-                             "Strongly agree" = 4,
-                             "Agree" = 3,
-                             "Disagree" = 2,
-                             "Strongly Disagree" = 1,
-                             "Strongly disagree" = 1),
-            na.rm = TRUE) %>%
-  mutate_at(c(25:44), ~as_factor(.)) %>%
   mutate(cohort = "c1", survey = "s2") %>%
   select("Respondent ID", "Collector ID", "indoor_style_practice",
          "outdoor_style_practice", 25:44, "cohort", "survey") 
 
-data_c1_s2_clean %>% str()
+#data_c1_s2_clean %>% str()
 ```
 
 For cohort 1, survey 3:
@@ -115,31 +99,43 @@ data_c1_s3_clean <- data_c1_s3 %>%
   filter(row_number() != 1) %>%
   unite(indoor_style_practice, names(.)[19:21], sep = ",", na.rm = TRUE) %>%
   unite(outdoor_style_practice, names(.)[24:29], sep = ",", na.rm = TRUE) %>%
-  mutate_at(c(25:44), ~recode(., "Strongly Agree" = 4,
+  mutate(cohort = "c1", survey = "s3") %>%
+  select("Respondent ID", "Collector ID", "indoor_style_practice",
+         "outdoor_style_practice", 25:44, "cohort", "survey") 
+
+#data_c1_s3_clean %>% str()
+```
+
+For cohort 1 (final summary). Noted that there are some mismatch between column names. Need to fix that before combining data frames. Here we only use before & after interventation for demonstration. We also cimpiled a dataframe to show individual participant information. 
+
+```{r}
+# s1 says "I find it difficult to find transportation to go outdoor climbing", while
+# s2 says "I find it difficult to find transportation to outdoor climbing"
+# There are many mis-match between s3 and s1&s2. Need check!
+
+names(data_c1_s1_clean_1)[23] <- names(data_c1_s2_clean)[23] 
+data_c1_clean <- rbind(data_c1_s1_clean_1, data_c1_s2_clean) %>%
+    mutate_at(c(5:24), ~recode(., "Strongly Agree" = 4,
                              "Strongly agree" = 4,
                              "Agree" = 3,
                              "Disagree" = 2,
                              "Strongly Disagree" = 1,
                              "Strongly disagree" = 1),
             na.rm = TRUE) %>%
-  mutate_at(c(25:44), ~as_factor(.)) %>%
-  mutate(cohort = "c1", survey = "s3") %>%
-  select("Respondent ID", "Collector ID", "indoor_style_practice",
-         "outdoor_style_practice", 25:44, "cohort", "survey") 
+    mutate_at(c(5:24), ~as_factor(.)) 
 
-data_c1_s3_clean %>% str()
+data_c1_clean %>% str()
 ```
 
-For cohort 1 (final summary). Noted that there are some mismatch between column names. Need to fix that before combining data frames.
 ```{r}
-# s1 says "I find it difficult to find transportation to go outdoor climbing", while
-# s2 says "I find it difficult to find transportation to outdoor climbing"
-# There are many mis-match between s3 and s1&s2. Need check!
+data_c1_clean_individual <- data_c1_s1_clean %>%
+  select("Respondent ID", "gender", "nationality", 13:18)
 
-names(data_c1_s1_clean)[23] <- names(data_c1_s2_clean)[23] 
-data_c1_clean <- rbind(data_c1_s1_clean, data_c1_s2_clean) 
-data_c1_clean
+data_c1_clean_individual %>% kable()
 ```
+
+
+### Data visualization
 
 
 
