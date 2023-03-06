@@ -138,7 +138,7 @@ For cohort 1 (final summary). Noted that there are some mismatch between column 
 
 names(data_c1_s1_clean)[23] <- names(data_c1_s2_clean)[23] 
 data_c1_clean <- rbind(data_c1_s1_clean, data_c1_s2_clean) 
-data_c1_clean %>% kable("html")
+data_c1_clean
 ```
 
 
