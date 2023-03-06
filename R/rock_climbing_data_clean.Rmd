@@ -247,6 +247,7 @@ negative_c1_table
 
 >T-tests are not appropriate to use with ordinal data. Because ordinal data has no central tendency, it also has no normal distribution. The values of ordinal data are evenly distributed, not grouped around a mid-point. Because of this, a t-test of ordinal data would have no statistical meaning.
 
+![t-test](doc/types_of_analysis.PNG)
 
 #### Wilcoxon Signed Rank Test
 
