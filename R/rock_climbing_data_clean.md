@@ -335,8 +335,6 @@ negative_c1_table
 > mid-point. Because of this, a t-test of ordinal data would have no
 > statistical meaning.
 
-![test](docs/analysis.PNG)
-
 #### Wilcoxon Signed Rank Test
 
 > The Wilcoxon signed rank test (also called the Wilcoxon signed rank
