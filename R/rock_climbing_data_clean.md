@@ -26,7 +26,6 @@ functions for working directory management.
 library(tidyverse)
 library(readxl)
 library(here)
-library(knitr)
 library(RColorBrewer)
 library(coin)
 ```

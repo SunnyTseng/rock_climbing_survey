@@ -230,6 +230,28 @@ negative_c1_table <- data_c1_clean %>%
 negative_c1_table
 ```
 
+
+## Cohort 2
+
+### Import data
+
+### Data cleaning
+
+### Data visualization
+
+
+## Cohort 3
+
+### Import data
+
+### Data cleaning
+
+### Data visualization
+
+
+
+
+
 ### Statistical test for paired ordinal data
 
 #### Some good online resources:
