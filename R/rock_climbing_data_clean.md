@@ -14,7 +14,7 @@ Agree, Disagree, Strongly Disagree. The goal of the analysis is to test
 whether there are significant differences between those levels before
 and after the intervention.
 
-### R packages & other functions
+### R packages
 
 Here we install (by `install.packages()`) and load (by `library()`) the
 packages that we will need. A package is like a tool box in R, that
@@ -113,10 +113,10 @@ data_c1_s3_clean <- data_c1_s3 %>%
 #data_c1_s3_clean %>% str()
 ```
 
-For cohort 1 (final summary). Noted that there are some mismatch between
+For cohort 1 (final summary). Note that there are some mismatch between
 column names. Need to fix that before combining data frames. Here we
 only use before & after interventation for demonstration. We also
-cimpiled a dataframe to show individual participant information.
+compiled a dataframe to show individual participant information.
 
 ``` r
 # s1 says "I find it difficult to find transportation to go outdoor climbing", while
@@ -177,29 +177,19 @@ data_c1_clean %>% str()
 data_c1_clean_individual <- data_c1_s1_clean %>%
   select("Respondent ID", "gender", "nationality", 13:18)
 
-data_c1_clean_individual 
+data_c1_clean_individual %>% str()
 ```
 
-    ## # A tibble: 13 x 9
-    ##    `Respondent ID` gender     nationality      `What is your ~` `What is the h~`
-    ##    <chr>           <chr>      <chr>            <chr>            <chr>           
-    ##  1 Participant 1   Girl/Woman Black (e.g., Af~ $25,000 to $50,~ Bachelor's degr~
-    ##  2 Participant 2   Girl/Woman Filipino         $50,000 to $100~ Master's degree 
-    ##  3 Participant 3   Girl/Woman South Asian (e.~ Prefer not to a~ Bachelor's degr~
-    ##  4 Participant 4   Girl/Woman Black (e.g., Af~ $50,000 to $100~ Master's degree 
-    ##  5 Participant 5   Girl/Woman Southeast Asian~ $100,000 to $20~ College diploma~
-    ##  6 Participant 6   Girl/Woman West Asian (e.g~ $50,000 to $100~ Master's degree 
-    ##  7 Participant 7   Girl/Woman Chinese          $50,000 to $100~ High school     
-    ##  8 Participant 8   Girl/Woman South Asian (e.~ $50,000 to $100~ Bachelor's degr~
-    ##  9 Participant 9   Girl/Woman Chinese          $50,000 to $100~ Bachelor's degr~
-    ## 10 Participant 10  Girl/Woman White (European~ $50,000 to $100~ Master's degree 
-    ## 11 Participant 11  Girl/Woman White (European~ $50,000 to $100~ High school     
-    ## 12 Participant 12  Girl/Woman South Asian (e.~ Prefer not to a~ Bachelor's degr~
-    ## 13 Participant 13  Girl/Woman South Asian (e.~ $50,000 to $100~ Bachelor's degr~
-    ## # ... with 4 more variables: `What is your age?` <chr>,
-    ## #   `What is your employment?` <chr>,
-    ## #   `Is there any other identifying information that you would like to provide?` <chr>,
-    ## #   `How do you consider yourself as a climber in terms of skills/expertise?` <chr>
+    ## tibble [13 x 9] (S3: tbl_df/tbl/data.frame)
+    ##  $ Respondent ID                                                             : chr [1:13] "Participant 1" "Participant 2" "Participant 3" "Participant 4" ...
+    ##  $ gender                                                                    : chr [1:13] "Girl/Woman" "Girl/Woman" "Girl/Woman" "Girl/Woman" ...
+    ##  $ nationality                                                               : chr [1:13] "Black (e.g., African or Caribbean)" "Filipino" "South Asian (e.g., Indian, Pakistani, Sri Lankan)" "Black (e.g., African or Caribbean),Arab" ...
+    ##  $ What is your annual household income?                                     : chr [1:13] "$25,000 to $50,000" "$50,000 to $100,000" "Prefer not to answer" "$50,000 to $100,000" ...
+    ##  $ What is the highest level of education you have completed?                : chr [1:13] "Bachelor's degree" "Master's degree" "Bachelor's degree" "Master's degree" ...
+    ##  $ What is your age?                                                         : chr [1:13] "24" "50" "30" "34" ...
+    ##  $ What is your employment?                                                  : chr [1:13] "Employment Counsellor" "Bank" "Legal Counsel" "Healthcare worker." ...
+    ##  $ Is there any other identifying information that you would like to provide?: chr [1:13] "NA" "Single mom" NA "I wear a hijab." ...
+    ##  $ How do you consider yourself as a climber in terms of skills/expertise?   : chr [1:13] "Beginner" "Beginner" "Beginner" "Beginner" ...
 
 ### Data visualization
 
@@ -329,10 +319,10 @@ negative_c1_table
     variables](https://www.researchgate.net/post/What-types-of-statistical-test-can-be-used-for-paired-categorical-variables-For-more-than-two-category)
 
 -   [What is the most suitable statistical test for ordinal
-    data](https://www.researchgate.net/post/What_is_the_most_suitable_statistical_test_for_ordinal_data_eg_Likert_scales#:~:text=The%20most%20suitable%20statistical%20tests,%2C%20no%20assumption%20on%20distribution).)
+    data](https://www.researchgate.net/post/What_is_the_most_suitable_statistical_test_for_ordinal_data_eg_Likert_scales#:~:text=The%20most%20suitable%20statistical%20tests,%2C%20no%20assumption%20on%20distribution)
 
 -   [Choosing the Right Statistical
-    Test](https://www.scribbr.com/statistics/statistical-tests/#:~:text=They%20can%20be%20used%20to%20test%20the%20effect%20of%20a,heights%20of%20men%20and%20women).)
+    Test](https://www.scribbr.com/statistics/statistical-tests/#:~:text=They%20can%20be%20used%20to%20test%20the%20effect%20of%20a,heights%20of%20men%20and%20women)
 
 -   [Can You Use a T-Test on Ranked
     Data?](https://sciencing.com/can-use-ttest-ranked-data-12010046.html)
@@ -345,7 +335,7 @@ negative_c1_table
 > mid-point. Because of this, a t-test of ordinal data would have no
 > statistical meaning.
 
-![t_test](%22docs/types_of_analysis.PNG%22)
+![test](docs/analysis.PNG)
 
 #### Wilcoxon Signed Rank Test
 
@@ -396,7 +386,8 @@ wilcox_1
     ## 12 Participant 12      3     4
     ## 13 Participant 13      3    NA
 
-Then we plot out the bar plot of difference
+Then we plot out the bar plot of difference to see the trend of change
+between before and after.
 
 ``` r
 wilcox_1_box <- wilcox_1 %>%
@@ -408,6 +399,9 @@ wilcox_1_box
 ```
 
 ![](rock_climbing_data_clean_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+
+Finally we conduct a statistical test and look for p-value, with the
+null hypothesis being **the medians of two samples are equal**.
 
 ``` r
 wilcox.test(x = wilcox_1$s1, y = wilcox_1$s2,
