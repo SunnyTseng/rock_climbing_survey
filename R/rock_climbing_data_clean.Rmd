@@ -111,22 +111,12 @@ For cohort 1 (final summary). Note that there are some mismatch between column n
 # There are many mis-match between s3 and s1&s2. Need check!
 
 names(data_c1_s1_clean_1)[23] <- names(data_c1_s2_clean)[23] 
-data_c1_clean <- rbind(data_c1_s1_clean_1, data_c1_s2_clean) %>%
-    mutate_at(c(5:24), ~recode(., "Strongly Agree" = 4,
-                             "Strongly agree" = 4,
-                             "Agree" = 3,
-                             "Disagree" = 2,
-                             "Strongly Disagree" = 1,
-                             "Strongly disagree" = 1),
-            na.rm = TRUE) %>%
-    mutate_at(c(5:24), ~recode(., "4" = "Strongly Agree",
-                               "3" = "Agree",
-                               "2" = "Disagree",
-                               "1" = "Strongly Disagree")) %>%
-    mutate_at(c(5:24), ~ factor(., levels = c("Strongly Disagree",
-                                              "Disagree",
-                                              "Agree",
-                                              "Strongly Agree"))) 
+data_c1_clean <- bind_rows(data_c1_s1_clean_1, data_c1_s2_clean) %>%
+    mutate_at(c(5:24), ~recode(., "Strongly agree" = "Strongly Agree",
+                             "agree" = "Agree",
+                             "disagree" = "Disagree",
+                             "Strongly disagree" = "Strongly Disagree"),
+              na.rm = TRUE)
 
 
 data_c1_clean %>% str()
@@ -137,6 +127,133 @@ data_c1_clean_individual <- data_c1_s1_clean %>%
   select("Respondent ID", "gender", "nationality", 13:18)
 
 data_c1_clean_individual %>% str()
+```
+
+
+## Cohort 2
+
+### Import data
+
+```{r, message = FALSE}
+data_c2_s1 <- read_excel(here("data", 
+                              "Cohort 2 Surveys_12_Spreadsheets", 
+                              "VIMFF Cohort 2 Survey 1_pre.xlsx"))
+
+data_c2_s2 <- read_excel(here("data", 
+                              "Cohort 2 Surveys_12_Spreadsheets", 
+                              "VIMFF Cohort 2 Survey 2_post.xlsx"))
+
+```
+
+
+### Data cleaning
+
+For cohort 2, survey 1:
+```{r}
+new_name <- function(dataset, start, end){
+  dataset[1, start:end] %>% as_vector()
+}
+
+data_c2_s1_clean <- data_c2_s1 %>%
+  rename_with(.fn =~ new_name(data_c2_s1, 66, 85), .cols = c(66:85)) %>%
+  filter(row_number() != 1) %>%
+  unite(gender, names(.)[11:24], sep = ",", na.rm = TRUE) %>%
+  unite(nationality, names(.)[12:28], sep = ",", na.rm = TRUE) %>%
+  unite(indoor_style_practice, names(.)[24:26], sep = ",", na.rm = TRUE) %>%
+  unite(outdoor_style_practice, names(.)[29:34], sep = ",", na.rm = TRUE) %>%
+  mutate(cohort = "c2", survey = "s1") %>%
+  select("Respondent ID", "Collector ID", "indoor_style_practice",
+         "outdoor_style_practice", 30:49, "cohort", "survey") 
+
+```
+
+For cohort 2, survey 2:
+```{r}
+data_c2_s2_clean <- data_c2_s2 %>%
+  rename_with(.fn =~ new_name(data_c2_s2, 32, 51), .cols = c(32:51)) %>%
+  filter(row_number() != 1) %>%
+  unite(indoor_style_practice, names(.)[19:21], sep = ",", na.rm = TRUE) %>%
+  unite(outdoor_style_practice, names(.)[24:29], sep = ",", na.rm = TRUE) %>%
+  mutate(cohort = "c2", survey = "s2") %>%
+  select("Respondent ID", "Collector ID", "indoor_style_practice",
+         "outdoor_style_practice", 25:44, "cohort", "survey") 
+```
+
+
+For cohort 2, final summary:
+```{r}
+# s1 says "I find it difficult to find transportation to go outdoor climbing", while
+# s2 says "I find it difficult to find transportation to outdoor climbing"
+
+names(data_c2_s1_clean)[23] <- names(data_c2_s2_clean)[23] 
+data_c2_clean <- bind_rows(data_c2_s1_clean, data_c2_s2_clean) %>%
+    mutate_at(c(5:24), ~recode(., "Strongly agree" = "Strongly Agree",
+                             "agree" = "Agree",
+                             "disagree" = "Disagree",
+                             "Strongly disagree" = "Strongly Disagree"),
+              na.rm = TRUE) 
+
+data_c2_clean %>% str()
+```
+
+
+
+## Cohort 3
+
+### Import data
+
+```{r, message = FALSE}
+data_c3_s1 <- read_excel(here("data", 
+                              "Cohort 3 Surveys_12_spreadsheets", 
+                              "VIMFF Cohort 3 Survey 1_pre.xlsx"))
+
+data_c3_s2 <- read_excel(here("data", 
+                              "Cohort 3 Surveys_12_spreadsheets", 
+                              "VIMFF Cohort 3 Survey 2_post.xlsx"))
+
+```
+
+### Data cleaning
+
+For cohort 3, survey 1:
+```{r}
+new_name <- function(dataset, start, end){
+  dataset[1, start:end] %>% as_vector()
+}
+
+data_c3_s1_clean <- data_c3_s1 %>%
+  rename_with(.fn =~ new_name(data_c3_s1, 67, 99), .cols = c(67:99)) %>%
+  rename_with(.fn =~ new_name(data_c3_s1, 105, 119), .cols = c(105:119)) %>%
+  filter(row_number() != 1) %>%
+  unite(gender, names(.)[11:24], sep = ",", na.rm = TRUE) %>%
+  unite(nationality, names(.)[12:28], sep = ",", na.rm = TRUE) %>%
+  unite(indoor_style_practice, names(.)[24:26], sep = ",", na.rm = TRUE) %>%
+  unite(outdoor_style_practice, names(.)[29:34], sep = ",", na.rm = TRUE) %>%
+  mutate(cohort = "c3", survey = "s1") %>%
+  select("Respondent ID", "Collector ID", "indoor_style_practice",
+         "outdoor_style_practice", 31:63, 69:83, "cohort", "survey") 
+
+```
+
+For cohort 3, survey 2:
+```{r}
+data_c3_s2_clean <- data_c3_s2 %>%
+  rename_with(.fn =~ new_name(data_c3_s2, 34, 66), .cols = c(34:66)) %>%
+  rename_with(.fn =~ new_name(data_c3_s2, 74, 85), .cols = c(74:85)) %>%
+  filter(row_number() != 1) %>%
+  unite(indoor_style_practice, names(.)[19:21], sep = ",", na.rm = TRUE) %>%
+  unite(outdoor_style_practice, names(.)[24:29], sep = ",", na.rm = TRUE) %>%
+  mutate(cohort = "c3", survey = "s2") %>%
+  select("Respondent ID", "Collector ID", "indoor_style_practice",
+         "outdoor_style_practice", 27:59, 67:78, "cohort", "survey") 
+```
+
+
+For cohort 3, final summary: **Too many mismatch between two surveys. Can't fully determine which ones are matched. Only keep the columns with identical names.**
+```{r}
+data_c3_clean <- bind_rows(data_c3_s1_clean, data_c3_s2_clean) %>%
+  select(where(function(x) is.na(x) %>% sum() < 10))
+data_c3_clean %>% str()
 ```
 
 
@@ -229,27 +346,6 @@ negative_c1_table <- data_c1_clean %>%
 
 negative_c1_table
 ```
-
-
-## Cohort 2
-
-### Import data
-
-### Data cleaning
-
-### Data visualization
-
-
-## Cohort 3
-
-### Import data
-
-### Data cleaning
-
-### Data visualization
-
-
-
 
 
 ### Statistical test for paired ordinal data

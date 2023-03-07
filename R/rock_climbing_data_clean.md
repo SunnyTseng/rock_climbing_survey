@@ -123,7 +123,7 @@ compiled a dataframe to show individual participant information.
 # There are many mis-match between s3 and s1&s2. Need check!
 
 names(data_c1_s1_clean_1)[23] <- names(data_c1_s2_clean)[23] 
-data_c1_clean <- rbind(data_c1_s1_clean_1, data_c1_s2_clean) %>%
+data_c1_clean <- bind_rows(data_c1_s1_clean_1, data_c1_s2_clean) %>%
     mutate_at(c(5:24), ~recode(., "Strongly Agree" = 4,
                              "Strongly agree" = 4,
                              "Agree" = 3,
@@ -190,6 +190,214 @@ data_c1_clean_individual %>% str()
     ##  $ Is there any other identifying information that you would like to provide?: chr [1:13] "NA" "Single mom" NA "I wear a hijab." ...
     ##  $ How do you consider yourself as a climber in terms of skills/expertise?   : chr [1:13] "Beginner" "Beginner" "Beginner" "Beginner" ...
 
+## Cohort 2
+
+### Import data
+
+``` r
+data_c2_s1 <- read_excel(here("data", 
+                              "Cohort 2 Surveys_12_Spreadsheets", 
+                              "VIMFF Cohort 2 Survey 1_pre.xlsx"))
+
+data_c2_s2 <- read_excel(here("data", 
+                              "Cohort 2 Surveys_12_Spreadsheets", 
+                              "VIMFF Cohort 2 Survey 2_post.xlsx"))
+```
+
+### Data cleaning
+
+For cohort 2, survey 1:
+
+``` r
+new_name <- function(dataset, start, end){
+  dataset[1, start:end] %>% as_vector()
+}
+
+data_c2_s1_clean <- data_c2_s1 %>%
+  rename_with(.fn =~ new_name(data_c2_s1, 66, 85), .cols = c(66:85)) %>%
+  filter(row_number() != 1) %>%
+  unite(gender, names(.)[11:24], sep = ",", na.rm = TRUE) %>%
+  unite(nationality, names(.)[12:28], sep = ",", na.rm = TRUE) %>%
+  unite(indoor_style_practice, names(.)[24:26], sep = ",", na.rm = TRUE) %>%
+  unite(outdoor_style_practice, names(.)[29:34], sep = ",", na.rm = TRUE) %>%
+  mutate(cohort = "c2", survey = "s1") %>%
+  select("Respondent ID", "Collector ID", "indoor_style_practice",
+         "outdoor_style_practice", 30:49, "cohort", "survey") 
+```
+
+For cohort 2, survey 2:
+
+``` r
+data_c2_s2_clean <- data_c2_s2 %>%
+  rename_with(.fn =~ new_name(data_c2_s2, 32, 51), .cols = c(32:51)) %>%
+  filter(row_number() != 1) %>%
+  unite(indoor_style_practice, names(.)[19:21], sep = ",", na.rm = TRUE) %>%
+  unite(outdoor_style_practice, names(.)[24:29], sep = ",", na.rm = TRUE) %>%
+  mutate(cohort = "c2", survey = "s2") %>%
+  select("Respondent ID", "Collector ID", "indoor_style_practice",
+         "outdoor_style_practice", 25:44, "cohort", "survey") 
+```
+
+For cohort 2, final summary:
+
+``` r
+# s1 says "I find it difficult to find transportation to go outdoor climbing", while
+# s2 says "I find it difficult to find transportation to outdoor climbing"
+
+names(data_c2_s1_clean)[23] <- names(data_c2_s2_clean)[23] 
+data_c2_clean <- bind_rows(data_c2_s1_clean, data_c2_s2_clean) %>%
+    mutate_at(c(5:24), ~recode(., "Strongly Agree" = 4,
+                             "Strongly agree" = 4,
+                             "Agree" = 3,
+                             "Disagree" = 2,
+                             "Strongly Disagree" = 1,
+                             "Strongly disagree" = 1),
+            na.rm = TRUE) %>%
+    mutate_at(c(5:24), ~recode(., "4" = "Strongly Agree",
+                               "3" = "Agree",
+                               "2" = "Disagree",
+                               "1" = "Strongly Disagree")) %>%
+    mutate_at(c(5:24), ~ factor(., levels = c("Strongly Disagree",
+                                              "Disagree",
+                                              "Agree",
+                                              "Strongly Agree"))) 
+
+data_c2_clean %>% str()
+```
+
+    ## tibble [24 x 26] (S3: tbl_df/tbl/data.frame)
+    ##  $ Respondent ID                                                                                      : chr [1:24] "Participant 14" "Participant 15" "Participant 16" "Participant 17" ...
+    ##  $ Collector ID                                                                                       : num [1:24] 2.7e+08 2.7e+08 2.7e+08 2.7e+08 2.7e+08 ...
+    ##  $ indoor_style_practice                                                                              : chr [1:24] "" "Bouldering" "Bouldering,Top-rope" "" ...
+    ##  $ outdoor_style_practice                                                                             : chr [1:24] "" "" "Bouldering" "" ...
+    ##  $ I love to climb                                                                                    : Factor w/ 4 levels "Strongly Disagree",..: 4 2 4 3 3 3 2 3 3 3 ...
+    ##  $ Climbing is fun                                                                                    : Factor w/ 4 levels "Strongly Disagree",..: 4 3 4 3 4 3 2 3 3 4 ...
+    ##  $ I am motivated to climb                                                                            : Factor w/ 4 levels "Strongly Disagree",..: 4 3 4 3 2 3 3 3 3 4 ...
+    ##  $ I feel encouraged in my climbing                                                                   : Factor w/ 4 levels "Strongly Disagree",..: 4 3 4 4 2 4 2 2 3 4 ...
+    ##  $ I feel hindered in my climbing                                                                     : Factor w/ 4 levels "Strongly Disagree",..: 2 3 2 2 4 2 3 3 3 3 ...
+    ##  $ I am inspired to climb by my female-identified climbing friends                                    : Factor w/ 4 levels "Strongly Disagree",..: 4 4 4 4 2 4 3 4 2 3 ...
+    ##  $ I am inspired to climb by films showcasing outdoor women climbers                                  : Factor w/ 4 levels "Strongly Disagree",..: 3 4 3 3 3 4 3 3 3 1 ...
+    ##  $ I am inspired to spend more time outdoors after watching films that showcase outdoor women climbers: Factor w/ 4 levels "Strongly Disagree",..: 3 3 4 3 3 4 3 3 2 3 ...
+    ##  $ I feel represented within the climbing community                                                   : Factor w/ 4 levels "Strongly Disagree",..: 2 3 2 2 1 3 1 2 3 1 ...
+    ##  $ I feel outdoor climbing guides are representative of the larger Vancouver and Squamish area        : Factor w/ 4 levels "Strongly Disagree",..: 2 2 2 2 2 2 1 2 NA 3 ...
+    ##  $ I feel welcomed in the climbing community                                                          : Factor w/ 4 levels "Strongly Disagree",..: 3 3 4 3 3 3 2 3 2 3 ...
+    ##  $ I feel safe in the climbing community                                                              : Factor w/ 4 levels "Strongly Disagree",..: 3 3 4 3 3 3 2 3 2 3 ...
+    ##  $ I feel connected to the climbing community                                                         : Factor w/ 4 levels "Strongly Disagree",..: 2 2 4 2 2 2 2 2 2 2 ...
+    ##  $ I feel the climbing community reflects the diversity of Vancouver and Squamish areas               : Factor w/ 4 levels "Strongly Disagree",..: 1 2 2 2 2 2 1 3 2 3 ...
+    ##  $ I feel it is possible for anyone to progress in climbing                                           : Factor w/ 4 levels "Strongly Disagree",..: 4 4 4 3 3 3 2 3 2 3 ...
+    ##  $ I find indoor climbing more accessible than outdoor climbing                                       : Factor w/ 4 levels "Strongly Disagree",..: 3 4 4 4 3 4 3 4 4 3 ...
+    ##  $ I find it difficult to find the resources to go outdoor climbing                                   : Factor w/ 4 levels "Strongly Disagree",..: 4 3 4 2 4 3 3 4 4 3 ...
+    ##  $ I find it difficult to find the time to go outdoor climbing                                        : Factor w/ 4 levels "Strongly Disagree",..: 3 2 4 3 2 3 4 3 4 2 ...
+    ##  $ I find it difficult to find transportation to outdoor climbing                                     : Factor w/ 4 levels "Strongly Disagree",..: 4 2 4 3 4 2 4 4 2 2 ...
+    ##  $ I find it difficult to find friends to go outdoor climbing with                                    : Factor w/ 4 levels "Strongly Disagree",..: 3 2 4 3 4 3 4 4 4 3 ...
+    ##  $ cohort                                                                                             : chr [1:24] "c2" "c2" "c2" "c2" ...
+    ##  $ survey                                                                                             : chr [1:24] "s1" "s1" "s1" "s1" ...
+
+## Cohort 3
+
+### Import data
+
+``` r
+data_c3_s1 <- read_excel(here("data", 
+                              "Cohort 3 Surveys_12_spreadsheets", 
+                              "VIMFF Cohort 3 Survey 1_pre.xlsx"))
+
+data_c3_s2 <- read_excel(here("data", 
+                              "Cohort 3 Surveys_12_spreadsheets", 
+                              "VIMFF Cohort 3 Survey 2_post.xlsx"))
+```
+
+### Data cleaning
+
+For cohort 3, survey 1:
+
+``` r
+new_name <- function(dataset, start, end){
+  dataset[1, start:end] %>% as_vector()
+}
+
+data_c3_s1_clean <- data_c3_s1 %>%
+  rename_with(.fn =~ new_name(data_c3_s1, 67, 99), .cols = c(67:99)) %>%
+  rename_with(.fn =~ new_name(data_c3_s1, 105, 119), .cols = c(105:119)) %>%
+  filter(row_number() != 1) %>%
+  unite(gender, names(.)[11:24], sep = ",", na.rm = TRUE) %>%
+  unite(nationality, names(.)[12:28], sep = ",", na.rm = TRUE) %>%
+  unite(indoor_style_practice, names(.)[24:26], sep = ",", na.rm = TRUE) %>%
+  unite(outdoor_style_practice, names(.)[29:34], sep = ",", na.rm = TRUE) %>%
+  mutate(cohort = "c3", survey = "s1") %>%
+  select("Respondent ID", "Collector ID", "indoor_style_practice",
+         "outdoor_style_practice", 31:63, 69:83, "cohort", "survey") 
+```
+
+For cohort 3, survey 2:
+
+``` r
+data_c3_s2_clean <- data_c3_s2 %>%
+  rename_with(.fn =~ new_name(data_c3_s2, 34, 66), .cols = c(34:66)) %>%
+  rename_with(.fn =~ new_name(data_c3_s2, 74, 85), .cols = c(74:85)) %>%
+  filter(row_number() != 1) %>%
+  unite(indoor_style_practice, names(.)[19:21], sep = ",", na.rm = TRUE) %>%
+  unite(outdoor_style_practice, names(.)[24:29], sep = ",", na.rm = TRUE) %>%
+  mutate(cohort = "c3", survey = "s2") %>%
+  select("Respondent ID", "Collector ID", "indoor_style_practice",
+         "outdoor_style_practice", 27:59, 67:78, "cohort", "survey") 
+```
+
+For cohort 3, final summary: **Too many mismatch between two surveys.
+Can’t fully determine which ones are matched. Only keep the columns with
+identical names.**
+
+``` r
+data_c3_clean <- bind_rows(data_c3_s1_clean, data_c3_s2_clean) %>%
+  select(where(function(x) is.na(x) %>% sum() < 10))
+data_c3_clean %>% str()
+```
+
+    ## tibble [20 x 43] (S3: tbl_df/tbl/data.frame)
+    ##  $ Respondent ID                                                                                      : chr [1:20] "Participant 26" "Participant 27" "Participant 28" "Participant 29" ...
+    ##  $ Collector ID                                                                                       : num [1:20] 2.7e+08 2.7e+08 2.7e+08 2.7e+08 2.7e+08 ...
+    ##  $ indoor_style_practice                                                                              : chr [1:20] "Bouldering,Top-rope,Lead" "Bouldering" "" "" ...
+    ##  $ outdoor_style_practice                                                                             : chr [1:20] "Top-rope,Lead" "" "" "" ...
+    ##  $ I love to climb                                                                                    : chr [1:20] "Agree" "Strongly Agree" "Disagree" "Disagree" ...
+    ##  $ Climbing is fun                                                                                    : chr [1:20] "Agree" "Strongly Agree" "Agree" "Disagree" ...
+    ##  $ I am motivated to climb                                                                            : chr [1:20] "Agree" "Agree" "Agree" "Agree" ...
+    ##  $ I feel encouraged in my climbing                                                                   : chr [1:20] "Agree" "Agree" "Disagree" "Disagree" ...
+    ##  $ I feel hindered in my climbing                                                                     : chr [1:20] "Agree" "Disagree" "Disagree" "Agree" ...
+    ##  $ I am inspired to climb by my female-identified climbing friends                                    : chr [1:20] "Agree" "Strongly Agree" "Agree" "Agree" ...
+    ##  $ I am inspired to climb by films showcasing outdoor womxn climbers                                  : chr [1:20] "Agree" "Agree" "Agree" "Agree" ...
+    ##  $ I am inspired to spend more time outdoors after watching films that showcase outdoor womxn climbers: chr [1:20] "Agree" "Agree" "Strongly Agree" "Agree" ...
+    ##  $ I am inspired to go outdoor climbing after watching films that showcase outdoor womxn climbers     : chr [1:20] "Agree" "Agree" "Strongly Agree" "Disagree" ...
+    ##  $ I feel represented within the climbing community                                                   : chr [1:20] "Disagree" "Disagree" "Agree" "Strongly Disagree" ...
+    ##  $ I feel outdoor climbing guides are representative of the larger Vancouver and Squamish area        : chr [1:20] "Agree" "Agree" "Disagree" "Disagree" ...
+    ##  $ I feel welcomed in the climbing community                                                          : chr [1:20] "Agree" "Agree" "Agree" "Agree" ...
+    ##  $ I feel safe in the climbing community                                                              : chr [1:20] "Agree" "Agree" "Agree" "Agree" ...
+    ##  $ I feel connected to the climbing community                                                         : chr [1:20] "Disagree" "Disagree" "Disagree" "Disagree" ...
+    ##  $ I feel the climbing community reflects the diversity of Vancouver and Squamish areas               : chr [1:20] "Agree" "Disagree" "Strongly Disagree" "Strongly Disagree" ...
+    ##  $ I feel it is possible for anyone to progress in climbing                                           : chr [1:20] "Agree" "Agree" "Agree" "Strongly agree" ...
+    ##  $ I find indoor climbing more accessible than outdoor climbing                                       : chr [1:20] "Disagree" "Strongly agree" "Strongly agree" "Strongly agree" ...
+    ##  $ I find it difficult to find the resources to go outdoor climbing                                   : chr [1:20] "Disagree" "Agree" "Strongly Agree" "Strongly Agree" ...
+    ##  $ I find it difficult to find the time to go outdoor climbing                                        : chr [1:20] "Disagree" "Strongly Agree" "Agree" "Strongly Agree" ...
+    ##  $ I find it difficult to find friends to go outdoor climbing with                                    : chr [1:20] "Agree" "Strongly Agree" "Agree" "Strongly Agree" ...
+    ##  $ Go top-rope climbing outdoors                                                                      : chr [1:20] "Somewhat likely" "Not likely" "Not likely" "Not likely" ...
+    ##  $ Go bouldering outdoors                                                                             : chr [1:20] "Not likely" "Somewhat likely" "Not likely" "Not likely" ...
+    ##  $ Purchase an indoor climbing gym membership                                                         : chr [1:20] "Not likely" "Very likely" "Somewhat likely" "Not likely" ...
+    ##  $ Purchase climbing shoes                                                                            : chr [1:20] "Very likely" "Very likely" "Somewhat likely" "Not likely" ...
+    ##  $ Go top-rope climbing indoors                                                                       : chr [1:20] "Very likely" "Somewhat likely" "Somewhat likely" "Not likely" ...
+    ##  $ Go bouldering indoors                                                                              : chr [1:20] "Somewhat likely" "Very likely" "Somewhat likely" "Not likely" ...
+    ##  $ Top-rope climbing outdoors                                                                         : chr [1:20] "Of Average Importance" "Not Important At All" "Not Important At All" "Not Important At All" ...
+    ##  $ Bouldering outdoors                                                                                : chr [1:20] "Of Little Importance" "Not Important At All" "Not Important At All" "Not Important At All" ...
+    ##  $ Having an indoor gym membership                                                                    : chr [1:20] "Of Little Importance" "Very Important" "Not Important At All" "Not Important At All" ...
+    ##  $ Owning my own climbing shoes                                                                       : chr [1:20] "Absolutely Essential" "Very Important" "Not Important At All" "Not Important At All" ...
+    ##  $ Top-rope climbing indoors                                                                          : chr [1:20] "Of Average Importance" "Not Important At All" "Not Important At All" "Not Important At All" ...
+    ##  $ Bouldering indoors                                                                                 : chr [1:20] "Of Average Importance" "Very Important" "Not Important At All" "Not Important At All" ...
+    ##  $ Making friends from the program to go climbing with in the future                                  : chr [1:20] "Of Average Importance" "Of Average Importance" "Very Important" "Very Important" ...
+    ##  $ Watching VIMFF films that feature Black, Indigenous, or other racialized womxn in the outdoors     : chr [1:20] "Of Average Importance" "Of Average Importance" "Very Important" "Of Little Importance" ...
+    ##  $ Watching VIMFF films in community with other climbers from the program                             : chr [1:20] "Of Average Importance" "Of Average Importance" "Of Average Importance" "Of Average Importance" ...
+    ##  $ Learning climbing skills from certified instructors                                                : chr [1:20] "Absolutely Essential" "Absolutely Essential" "Very Important" "Absolutely Essential" ...
+    ##  $ Learning climbing skills in a safe, welcoming environment                                          : chr [1:20] "Absolutely Essential" "Absolutely Essential" "Very Important" "Absolutely Essential" ...
+    ##  $ cohort                                                                                             : chr [1:20] "c3" "c3" "c3" "c3" ...
+    ##  $ survey                                                                                             : chr [1:20] "s1" "s1" "s1" "s1" ...
+
 ### Data visualization
 
 Positive questions for climbing - before & after intervention
@@ -216,7 +424,7 @@ positive_c1_fig <- data_c1_clean %>%
 positive_c1_fig
 ```
 
-![](rock_climbing_data_clean_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+![](rock_climbing_data_clean_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
 
 ``` r
 positive_c1_table <- data_c1_clean %>%
@@ -275,7 +483,7 @@ negative_c1 <- data_c1_clean %>%
 negative_c1
 ```
 
-![](rock_climbing_data_clean_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+![](rock_climbing_data_clean_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
 
 ``` r
 negative_c1_table <- data_c1_clean %>%
@@ -395,7 +603,7 @@ wilcox_1_box <- wilcox_1 %>%
 wilcox_1_box
 ```
 
-![](rock_climbing_data_clean_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+![](rock_climbing_data_clean_files/figure-gfm/unnamed-chunk-21-1.png)<!-- -->
 
 Finally we conduct a statistical test and look for p-value, with the
 null hypothesis being **the medians of two samples are equal**.
