@@ -1,5 +1,5 @@
 ---
-title: "Rock climbing survey data claning & analysis"
+title: "Rock climbing survey data claning"
 author: "Sunny Tseng"
 date: "2023-03-05"
 output: github_document
@@ -111,13 +111,7 @@ For cohort 1 (final summary). Note that there are some mismatch between column n
 # There are many mis-match between s3 and s1&s2. Need check!
 
 names(data_c1_s1_clean_1)[23] <- names(data_c1_s2_clean)[23] 
-data_c1_clean <- bind_rows(data_c1_s1_clean_1, data_c1_s2_clean) %>%
-    mutate_at(c(5:24), ~recode(., "Strongly agree" = "Strongly Agree",
-                             "agree" = "Agree",
-                             "disagree" = "Disagree",
-                             "Strongly disagree" = "Strongly Disagree"),
-              na.rm = TRUE)
-
+data_c1_clean <- bind_rows(data_c1_s1_clean_1, data_c1_s2_clean) 
 
 data_c1_clean %>% str()
 ```
@@ -186,12 +180,7 @@ For cohort 2, final summary:
 # s2 says "I find it difficult to find transportation to outdoor climbing"
 
 names(data_c2_s1_clean)[23] <- names(data_c2_s2_clean)[23] 
-data_c2_clean <- bind_rows(data_c2_s1_clean, data_c2_s2_clean) %>%
-    mutate_at(c(5:24), ~recode(., "Strongly agree" = "Strongly Agree",
-                             "agree" = "Agree",
-                             "disagree" = "Disagree",
-                             "Strongly disagree" = "Strongly Disagree"),
-              na.rm = TRUE) 
+data_c2_clean <- bind_rows(data_c2_s1_clean, data_c2_s2_clean) 
 
 data_c2_clean %>% str()
 ```
@@ -253,6 +242,7 @@ For cohort 3, final summary: **Too many mismatch between two surveys. Can't full
 ```{r}
 data_c3_clean <- bind_rows(data_c3_s1_clean, data_c3_s2_clean) %>%
   select(where(function(x) is.na(x) %>% sum() < 10))
+
 data_c3_clean %>% str()
 ```
 
