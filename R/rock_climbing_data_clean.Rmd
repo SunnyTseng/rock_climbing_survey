@@ -124,6 +124,107 @@ data_c1_clean_individual %>% str()
 ```
 
 
+### Data visualization
+
+Positive questions for climbing - before & after intervention
+
+```{r}
+nb.cols <- 20
+mycolors <- colorRampPalette(brewer.pal(8, "Set2"))(nb.cols)
+
+positive_c1_fig <- data_c1_clean %>%
+  filter(cohort == "c1") %>%
+  select(`Respondent ID`, survey, 5:8, 10:20) %>%
+  pivot_longer(!c(`Respondent ID`, survey), 
+               names_to = "question", 
+               values_to = "Level of agreement") %>%
+  mutate(`Level of agreement` = factor(`Level of agreement`, 
+                                       levels = c("Strongly Disagree",
+                                                  "Disagree",
+                                                  "Agree",
+                                                  "Strongly Agree"))) %>%
+  mutate(survey = if_else(survey == "s1", "Before intervention", "After intervention")) %>%
+  mutate(survey = factor(survey, levels = c("Before intervention", "After intervention"))) %>%
+  drop_na() %>%
+  ggplot() +
+    geom_bar(aes(`Level of agreement`, fill = question)) + # position = position_dodge()
+    scale_fill_manual(values = mycolors) +
+    facet_grid(~survey) +
+    theme(legend.position = "none") 
+
+positive_c1_fig
+
+```
+
+```{r}
+positive_c1_table <- data_c1_clean %>%
+  filter(cohort == "c1") %>%
+  select(`Respondent ID`, survey, 5:8, 10:20) %>%
+  pivot_longer(!c(`Respondent ID`, survey), 
+               names_to = "question", 
+               values_to = "agreement") %>%
+  drop_na() %>%
+  group_by(agreement, survey) %>%
+  summarize(n = n()) %>%
+  pivot_wider(names_from = survey, values_from = n) %>%
+  mutate(percent_before = s1/sum(.$s1)*100,
+         percent_after = s2/sum(.$s2)*100) %>%
+  rename(n_before = "s1", n_after = "s2") %>%
+  select(agreement, n_before, percent_before, n_after, percent_after)
+
+positive_c1_table
+```
+
+
+Negative questions for climbing - before & after intervention
+
+```{r}
+nb.cols <- 20
+mycolors <- colorRampPalette(brewer.pal(8, "Set2"))(nb.cols)
+
+negative_c1 <- data_c1_clean %>%
+  filter(cohort == "c1") %>%
+  select(`Respondent ID`, survey, 9, 21:24) %>%
+  pivot_longer(!c(`Respondent ID`, survey), 
+               names_to = "question", 
+               values_to = "Level of agreement") %>%
+  mutate(`Level of agreement` = factor(`Level of agreement`, 
+                                       levels = c("Strongly Disagree",
+                                                  "Disagree",
+                                                  "Agree",
+                                                  "Strongly Agree"))) %>%
+  mutate(survey = if_else(survey == "s1", "Before intervention", "After intervention")) %>%
+  mutate(survey = factor(survey, levels = c("Before intervention", "After intervention"))) %>%
+  drop_na() %>%
+  ggplot() +
+    geom_bar(aes(`Level of agreement`, fill = question)) + # position = position_dodge()
+    scale_fill_manual(values = mycolors) +
+    facet_grid(~survey) +
+    theme(legend.position = "none") 
+
+negative_c1
+```
+
+```{r}
+negative_c1_table <- data_c1_clean %>%
+  filter(cohort == "c1") %>%
+  select(`Respondent ID`, survey, 9, 21:24) %>%
+  pivot_longer(!c(`Respondent ID`, survey), 
+               names_to = "question", 
+               values_to = "agreement") %>%
+  drop_na() %>%
+  group_by(agreement, survey) %>%
+  summarize(n = n()) %>%
+  pivot_wider(names_from = survey, values_from = n) %>%
+  mutate(percent_before = s1/sum(.$s1)*100,
+         percent_after = s2/sum(.$s2)*100) %>%
+  rename(n_before = "s1", n_after = "s2") %>%
+  select(agreement, n_before, percent_before, n_after, percent_after)
+
+negative_c1_table
+```
+
+
 ## Cohort 2
 
 ### Import data
@@ -246,96 +347,6 @@ data_c3_clean <- bind_rows(data_c3_s1_clean, data_c3_s2_clean) %>%
 data_c3_clean %>% str()
 ```
 
-
-### Data visualization
-
-Positive questions for climbing - before & after intervention
-
-```{r}
-nb.cols <- 20
-mycolors <- colorRampPalette(brewer.pal(8, "Set2"))(nb.cols)
-
-positive_c1_fig <- data_c1_clean %>%
-  filter(cohort == "c1") %>%
-  select(`Respondent ID`, survey, 5:8, 10:20) %>%
-  pivot_longer(!c(`Respondent ID`, survey), 
-               names_to = "question", 
-               values_to = "Level of agreement") %>%
-  mutate(survey = if_else(survey == "s1", "Before intervention", "After intervention")) %>%
-  mutate(survey = factor(survey, levels = c("Before intervention", "After intervention"))) %>%
-  drop_na() %>%
-  ggplot() +
-    geom_bar(aes(`Level of agreement`, fill = question)) + # position = position_dodge()
-    scale_fill_manual(values = mycolors) +
-    facet_grid(~survey) +
-    theme(legend.position = "none") 
-
-positive_c1_fig
-
-```
-
-```{r}
-positive_c1_table <- data_c1_clean %>%
-  filter(cohort == "c1") %>%
-  select(`Respondent ID`, survey, 5:8, 10:20) %>%
-  pivot_longer(!c(`Respondent ID`, survey), 
-               names_to = "question", 
-               values_to = "agreement") %>%
-  drop_na() %>%
-  group_by(agreement, survey) %>%
-  summarize(n = n()) %>%
-  pivot_wider(names_from = survey, values_from = n) %>%
-  mutate(percent_before = s1/sum(.$s1)*100,
-         percent_after = s2/sum(.$s2)*100) %>%
-  rename(n_before = "s1", n_after = "s2") %>%
-  select(agreement, n_before, percent_before, n_after, percent_after)
-
-positive_c1_table
-```
-
-
-Negative questions for climbing - before & after intervention
-
-```{r}
-nb.cols <- 20
-mycolors <- colorRampPalette(brewer.pal(8, "Set2"))(nb.cols)
-
-negative_c1 <- data_c1_clean %>%
-  filter(cohort == "c1") %>%
-  select(`Respondent ID`, survey, 9, 21:24) %>%
-  pivot_longer(!c(`Respondent ID`, survey), 
-               names_to = "question", 
-               values_to = "Level of agreement") %>%
-  mutate(survey = if_else(survey == "s1", "Before intervention", "After intervention")) %>%
-  mutate(survey = factor(survey, levels = c("Before intervention", "After intervention"))) %>%
-  drop_na() %>%
-  ggplot() +
-    geom_bar(aes(`Level of agreement`, fill = question)) + # position = position_dodge()
-    scale_fill_manual(values = mycolors) +
-    facet_grid(~survey) +
-    theme(legend.position = "none") 
-
-negative_c1
-```
-
-```{r}
-negative_c1_table <- data_c1_clean %>%
-  filter(cohort == "c1") %>%
-  select(`Respondent ID`, survey, 9, 21:24) %>%
-  pivot_longer(!c(`Respondent ID`, survey), 
-               names_to = "question", 
-               values_to = "agreement") %>%
-  drop_na() %>%
-  group_by(agreement, survey) %>%
-  summarize(n = n()) %>%
-  pivot_wider(names_from = survey, values_from = n) %>%
-  mutate(percent_before = s1/sum(.$s1)*100,
-         percent_after = s2/sum(.$s2)*100) %>%
-  rename(n_before = "s1", n_after = "s2") %>%
-  select(agreement, n_before, percent_before, n_after, percent_after)
-
-negative_c1_table
-```
 
 
 ### Statistical test for paired ordinal data

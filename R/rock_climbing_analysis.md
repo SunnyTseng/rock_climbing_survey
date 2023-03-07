@@ -54,6 +54,12 @@ data_c3 <- read_csv(here("data", "processed", "data_c3_clean.csv"))
 
 ### Wilcoxon matched-pairs signed rank test for single question
 
+You only need to change two values:
+
+-   `dataset` = either `data_c1`, `data_c2`, or `data_c3`
+-   `quesiton_id` = numerical value, which corresponds to the column
+    number of the .csv file.
+
 ``` r
 wilcox <- wilcox_table(dataset = data_c1, question_id = 5)
 

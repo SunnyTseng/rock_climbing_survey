@@ -174,6 +174,137 @@ data_c1_clean_individual %>% str()
     ##  $ Is there any other identifying information that you would like to provide?: chr [1:13] "NA" "Single mom" NA "I wear a hijab." ...
     ##  $ How do you consider yourself as a climber in terms of skills/expertise?   : chr [1:13] "Beginner" "Beginner" "Beginner" "Beginner" ...
 
+### Data visualization
+
+Positive questions for climbing - before & after intervention
+
+``` r
+nb.cols <- 20
+mycolors <- colorRampPalette(brewer.pal(8, "Set2"))(nb.cols)
+
+positive_c1_fig <- data_c1_clean %>%
+  filter(cohort == "c1") %>%
+  select(`Respondent ID`, survey, 5:8, 10:20) %>%
+  pivot_longer(!c(`Respondent ID`, survey), 
+               names_to = "question", 
+               values_to = "Level of agreement") %>%
+  mutate(`Level of agreement` = factor(`Level of agreement`, 
+                                       levels = c("Strongly Disagree",
+                                                  "Disagree",
+                                                  "Agree",
+                                                  "Strongly Agree"))) %>%
+  mutate(survey = if_else(survey == "s1", "Before intervention", "After intervention")) %>%
+  mutate(survey = factor(survey, levels = c("Before intervention", "After intervention"))) %>%
+  drop_na() %>%
+  ggplot() +
+    geom_bar(aes(`Level of agreement`, fill = question)) + # position = position_dodge()
+    scale_fill_manual(values = mycolors) +
+    facet_grid(~survey) +
+    theme(legend.position = "none") 
+
+positive_c1_fig
+```
+
+![](rock_climbing_data_clean_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+
+``` r
+positive_c1_table <- data_c1_clean %>%
+  filter(cohort == "c1") %>%
+  select(`Respondent ID`, survey, 5:8, 10:20) %>%
+  pivot_longer(!c(`Respondent ID`, survey), 
+               names_to = "question", 
+               values_to = "agreement") %>%
+  drop_na() %>%
+  group_by(agreement, survey) %>%
+  summarize(n = n()) %>%
+  pivot_wider(names_from = survey, values_from = n) %>%
+  mutate(percent_before = s1/sum(.$s1)*100,
+         percent_after = s2/sum(.$s2)*100) %>%
+  rename(n_before = "s1", n_after = "s2") %>%
+  select(agreement, n_before, percent_before, n_after, percent_after)
+```
+
+    ## `summarise()` has grouped output by 'agreement'. You can override using the
+    ## `.groups` argument.
+
+``` r
+positive_c1_table
+```
+
+    ## # A tibble: 5 x 5
+    ## # Groups:   agreement [5]
+    ##   agreement         n_before percent_before n_after percent_after
+    ##   <chr>                <int>          <dbl>   <int>         <dbl>
+    ## 1 Agree                  105          54.1       73         41.0 
+    ## 2 Disagree                40          20.6       29         16.3 
+    ## 3 Strongly Agree          22          11.3       52         29.2 
+    ## 4 Strongly Disagree       13           6.70       9          5.06
+    ## 5 Strongly agree          14           7.22      15          8.43
+
+Negative questions for climbing - before & after intervention
+
+``` r
+nb.cols <- 20
+mycolors <- colorRampPalette(brewer.pal(8, "Set2"))(nb.cols)
+
+negative_c1 <- data_c1_clean %>%
+  filter(cohort == "c1") %>%
+  select(`Respondent ID`, survey, 9, 21:24) %>%
+  pivot_longer(!c(`Respondent ID`, survey), 
+               names_to = "question", 
+               values_to = "Level of agreement") %>%
+  mutate(`Level of agreement` = factor(`Level of agreement`, 
+                                       levels = c("Strongly Disagree",
+                                                  "Disagree",
+                                                  "Agree",
+                                                  "Strongly Agree"))) %>%
+  mutate(survey = if_else(survey == "s1", "Before intervention", "After intervention")) %>%
+  mutate(survey = factor(survey, levels = c("Before intervention", "After intervention"))) %>%
+  drop_na() %>%
+  ggplot() +
+    geom_bar(aes(`Level of agreement`, fill = question)) + # position = position_dodge()
+    scale_fill_manual(values = mycolors) +
+    facet_grid(~survey) +
+    theme(legend.position = "none") 
+
+negative_c1
+```
+
+![](rock_climbing_data_clean_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+
+``` r
+negative_c1_table <- data_c1_clean %>%
+  filter(cohort == "c1") %>%
+  select(`Respondent ID`, survey, 9, 21:24) %>%
+  pivot_longer(!c(`Respondent ID`, survey), 
+               names_to = "question", 
+               values_to = "agreement") %>%
+  drop_na() %>%
+  group_by(agreement, survey) %>%
+  summarize(n = n()) %>%
+  pivot_wider(names_from = survey, values_from = n) %>%
+  mutate(percent_before = s1/sum(.$s1)*100,
+         percent_after = s2/sum(.$s2)*100) %>%
+  rename(n_before = "s1", n_after = "s2") %>%
+  select(agreement, n_before, percent_before, n_after, percent_after)
+```
+
+    ## `summarise()` has grouped output by 'agreement'. You can override using the
+    ## `.groups` argument.
+
+``` r
+negative_c1_table
+```
+
+    ## # A tibble: 4 x 5
+    ## # Groups:   agreement [4]
+    ##   agreement         n_before percent_before n_after percent_after
+    ##   <chr>                <int>          <dbl>   <int>         <dbl>
+    ## 1 Agree                   30          46.2       16         26.7 
+    ## 2 Disagree                16          24.6       21         35   
+    ## 3 Strongly Agree          18          27.7       21         35   
+    ## 4 Strongly Disagree        1           1.54       2          3.33
+
 ## Cohort 2
 
 ### Import data
@@ -367,127 +498,6 @@ data_c3_clean %>% str()
     ##  $ Learning climbing skills in a safe, welcoming environment                                          : chr [1:20] "Absolutely Essential" "Absolutely Essential" "Very Important" "Absolutely Essential" ...
     ##  $ cohort                                                                                             : chr [1:20] "c3" "c3" "c3" "c3" ...
     ##  $ survey                                                                                             : chr [1:20] "s1" "s1" "s1" "s1" ...
-
-### Data visualization
-
-Positive questions for climbing - before & after intervention
-
-``` r
-nb.cols <- 20
-mycolors <- colorRampPalette(brewer.pal(8, "Set2"))(nb.cols)
-
-positive_c1_fig <- data_c1_clean %>%
-  filter(cohort == "c1") %>%
-  select(`Respondent ID`, survey, 5:8, 10:20) %>%
-  pivot_longer(!c(`Respondent ID`, survey), 
-               names_to = "question", 
-               values_to = "Level of agreement") %>%
-  mutate(survey = if_else(survey == "s1", "Before intervention", "After intervention")) %>%
-  mutate(survey = factor(survey, levels = c("Before intervention", "After intervention"))) %>%
-  drop_na() %>%
-  ggplot() +
-    geom_bar(aes(`Level of agreement`, fill = question)) + # position = position_dodge()
-    scale_fill_manual(values = mycolors) +
-    facet_grid(~survey) +
-    theme(legend.position = "none") 
-
-positive_c1_fig
-```
-
-![](rock_climbing_data_clean_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
-
-``` r
-positive_c1_table <- data_c1_clean %>%
-  filter(cohort == "c1") %>%
-  select(`Respondent ID`, survey, 5:8, 10:20) %>%
-  pivot_longer(!c(`Respondent ID`, survey), 
-               names_to = "question", 
-               values_to = "agreement") %>%
-  drop_na() %>%
-  group_by(agreement, survey) %>%
-  summarize(n = n()) %>%
-  pivot_wider(names_from = survey, values_from = n) %>%
-  mutate(percent_before = s1/sum(.$s1)*100,
-         percent_after = s2/sum(.$s2)*100) %>%
-  rename(n_before = "s1", n_after = "s2") %>%
-  select(agreement, n_before, percent_before, n_after, percent_after)
-```
-
-    ## `summarise()` has grouped output by 'agreement'. You can override using the
-    ## `.groups` argument.
-
-``` r
-positive_c1_table
-```
-
-    ## # A tibble: 5 x 5
-    ## # Groups:   agreement [5]
-    ##   agreement         n_before percent_before n_after percent_after
-    ##   <chr>                <int>          <dbl>   <int>         <dbl>
-    ## 1 Agree                  105          54.1       73         41.0 
-    ## 2 Disagree                40          20.6       29         16.3 
-    ## 3 Strongly Agree          22          11.3       52         29.2 
-    ## 4 Strongly Disagree       13           6.70       9          5.06
-    ## 5 Strongly agree          14           7.22      15          8.43
-
-Negative questions for climbing - before & after intervention
-
-``` r
-nb.cols <- 20
-mycolors <- colorRampPalette(brewer.pal(8, "Set2"))(nb.cols)
-
-negative_c1 <- data_c1_clean %>%
-  filter(cohort == "c1") %>%
-  select(`Respondent ID`, survey, 9, 21:24) %>%
-  pivot_longer(!c(`Respondent ID`, survey), 
-               names_to = "question", 
-               values_to = "Level of agreement") %>%
-  mutate(survey = if_else(survey == "s1", "Before intervention", "After intervention")) %>%
-  mutate(survey = factor(survey, levels = c("Before intervention", "After intervention"))) %>%
-  drop_na() %>%
-  ggplot() +
-    geom_bar(aes(`Level of agreement`, fill = question)) + # position = position_dodge()
-    scale_fill_manual(values = mycolors) +
-    facet_grid(~survey) +
-    theme(legend.position = "none") 
-
-negative_c1
-```
-
-![](rock_climbing_data_clean_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
-
-``` r
-negative_c1_table <- data_c1_clean %>%
-  filter(cohort == "c1") %>%
-  select(`Respondent ID`, survey, 9, 21:24) %>%
-  pivot_longer(!c(`Respondent ID`, survey), 
-               names_to = "question", 
-               values_to = "agreement") %>%
-  drop_na() %>%
-  group_by(agreement, survey) %>%
-  summarize(n = n()) %>%
-  pivot_wider(names_from = survey, values_from = n) %>%
-  mutate(percent_before = s1/sum(.$s1)*100,
-         percent_after = s2/sum(.$s2)*100) %>%
-  rename(n_before = "s1", n_after = "s2") %>%
-  select(agreement, n_before, percent_before, n_after, percent_after)
-```
-
-    ## `summarise()` has grouped output by 'agreement'. You can override using the
-    ## `.groups` argument.
-
-``` r
-negative_c1_table
-```
-
-    ## # A tibble: 4 x 5
-    ## # Groups:   agreement [4]
-    ##   agreement         n_before percent_before n_after percent_after
-    ##   <chr>                <int>          <dbl>   <int>         <dbl>
-    ## 1 Agree                   30          46.2       16         26.7 
-    ## 2 Disagree                16          24.6       21         35   
-    ## 3 Strongly Agree          18          27.7       21         35   
-    ## 4 Strongly Disagree        1           1.54       2          3.33
 
 ### Statistical test for paired ordinal data
 
