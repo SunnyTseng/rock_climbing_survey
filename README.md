@@ -36,7 +36,7 @@ There are 3 cohorts experienced rock climbing intervention. Surveys were done be
 
 ![image](docs/chunk.PNG)
 
-- In the final code chunk, we are analyzing the responses of single from single cohort. Here is an example for Cohort 1, and "I love climbing". You should have 2 output after running the code. 
+- In the final code chunk, we are analyzing the responses of single question from single cohort. Here is an example for Cohort 1, and the question "I love to climb". You should have 2 output after running the code. 
 
 - One is the plot showing the count of difference between before & after intervention.
 
@@ -46,10 +46,14 @@ There are 3 cohorts experienced rock climbing intervention. Surveys were done be
 
 ![image](docs/result_stat.PNG)
 
+### Only 2 values you need to change in the code
+
 - Finally, you can change the code to analyze any questions from any cohort you want. How? By changing two things in the code (highlighted in yellow).
 
-- Which cohort you are looking at? Change `data_c1` to either `data_c1`, `data_c2`, or `data_c3`.
+    - Which cohort you are looking at? Change `data_c1` to either `data_c1`, `data_c2`, or `data_c3`.
 
-- Which question you want to test? Change the value to the number which corresponds to the column number of the .csv file. 
+    - Which question you want to test? Change the value to the number which corresponds to the column number of the .csv file. 
 
 ![image](docs/change.jpg)
+
+- For this, I produced a [table](https://github.com/SunnyTseng/rock_climbing_survey/blob/main/R/rock_climbing_analysis.md) to show how you can input these values and their corresponding question. The table is at the very bottom of the document. 
