@@ -13,7 +13,6 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r, message = FALSE}
 library(tidyverse)
-library(knitr)
 library(here)
 library(coin)
 ```
@@ -57,16 +56,6 @@ return(wilcox)
 data_c1 <- read_csv(here("data", "processed", "data_c1_clean.csv"))
 data_c2 <- read_csv(here("data", "processed", "data_c2_clean.csv"))
 data_c3 <- read_csv(here("data", "processed", "data_c3_clean.csv"))
-
-q_list <- bind_rows(data_frame(dataset = "data_c1",
-                               quesion_id = seq(from = 5, to = (ncol(data_c1)-2)),
-                               question = names(data_c1)[5:(ncol(data_c1)-2)]),
-                    data_frame(dataset = "data_c2",
-                               quesion_id = seq(from = 5, to = (ncol(data_c2)-2)),
-                               question = names(data_c2)[5:(ncol(data_c2)-2)]),
-                    data_frame(dataset = "data_c3",
-                               quesion_id = seq(from = 5, to = (ncol(data_c3)-2)),
-                               question = names(data_c3)[5:(ncol(data_c3)-2)]))
 ```
 
 
@@ -91,8 +80,4 @@ wilcoxsign_test(wilcox$s1 ~ wilcox$s2,
                 zero.method = "Wilcoxon")
 ```
 
-### Question list
-```{r, echo = FALSE}
-q_list %>% kable()
-```
 
