@@ -52,8 +52,8 @@ There are 3 cohorts experienced rock climbing intervention. Surveys were done be
 
     - Which cohort you are looking at? Change `data_c1` to either `data_c1`, `data_c2`, or `data_c3`.
 
-    - Which question you want to test? Change the value to the number which corresponds to the column number of the .csv file. 
+    - Which question you want to test? Change the value to the number which corresponds to the column number of the .csv file. For this, I produced this [table](https://github.com/SunnyTseng/rock_climbing_survey/blob/main/R/question_list.md) to show how you can input these values and their corresponding question.
 
 ![image](docs/change.jpg)
 
-- For this, I produced a [table](https://github.com/SunnyTseng/rock_climbing_survey/blob/main/R/rock_climbing_analysis.md) to show how you can input these values and their corresponding question. The table is at the very bottom of the document. 
+### Enjoy!
