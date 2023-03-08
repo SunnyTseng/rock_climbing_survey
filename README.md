@@ -30,7 +30,7 @@ There are 3 cohorts experienced rock climbing intervention. Surveys were done be
 - An R script should pop up on your screen. Now your R Studio should have 4 windows. Top-left: your script, or code; Bottom-left: your console; Top-right: objects in the environment; Bottom-right: folders, plots, and others. 
 
 
-### Run code in R Studio
+### 2. Run code in R Studio
 
 - After opening the `rock_climbing_analysis.Rmd`, run all the code by clicking the green arrow in the code chunk through out the document.
 
@@ -46,7 +46,7 @@ There are 3 cohorts experienced rock climbing intervention. Surveys were done be
 
 ![image](docs/result_stat.PNG)
 
-### Only 2 values you need to change in the code
+### 3. Only 2 values you need to change in the code
 
 - Finally, you can change the code to analyze any questions from any cohort you want. How? By changing two things in the code (highlighted in yellow).
 
@@ -56,4 +56,4 @@ There are 3 cohorts experienced rock climbing intervention. Surveys were done be
 
 ![image](docs/change.jpg)
 
-### Have fun running the analysis!
+### 4. Have fun running the analysis!
